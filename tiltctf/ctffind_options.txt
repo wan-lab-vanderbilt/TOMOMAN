@@ -1,0 +1,31 @@
+Input image file name
+Input is a movie (stack of frames)
+Output diagnostic image file name
+
+Pixel size
+Acceleration voltage
+Spherical aberration
+Amplitude contrast
+Size of amplitude spectrum to compute
+Minimum resolution
+Maximum resolution
+Minimum defocus
+Maximum defocus
+Defocus search step
+
+Do you know what astigmatism is present?
+Known astigmatism 
+Known astigmatism angle
+
+Slower, more exhaustive search? % This block is removed when astigmatism is known
+Use a restraint on astigmatism?
+Expected (tolerated) astigmatism % Disappears of no restraint is used
+
+
+Find additional phase shift?
+Minimum phase shift (rad)
+Maximum phase shift (rad)
+Phase shift search step
+
+Do you want to set expert options?
+Resample micrograph if pixel size too small?
