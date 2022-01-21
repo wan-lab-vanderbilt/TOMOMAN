@@ -1,5 +1,0 @@
-TOMOMAN Initializing!!!
-{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('tomoman_exe_ctffind4', '/fs/gpfs41/lv01/fileset02/pool/pool-plitzko/Sagar/Projects/insitu_ribosomes/yeast_tfs_brno/pt/tomo/exe/tomoman_exe_ctffind4.m', 72)" style="font-weight:bold">tomoman_exe_ctffind4</a> (<a href="matlab: opentoline('/fs/gpfs41/lv01/fileset02/pool/pool-plitzko/Sagar/Projects/insitu_ribosomes/yeast_tfs_brno/pt/tomo/exe/tomoman_exe_ctffind4.m',72,0)">line 72</a>)
-TOMOMAN: No tomolist found!!!
-} 
-tomoman_exe_ctffind4
