@@ -1,4 +1,4 @@
-TOMOgram MANager v0.6.7
+TOMOgram MANager v0.6.14
 
 Short Guide 
 
