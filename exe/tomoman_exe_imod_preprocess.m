@@ -10,7 +10,7 @@ clc;
 %% Inputs
 
 % Directory parameters
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';  % Root folder for dataset; stack directories will be generated here.
+p.root_dir = '/fs/pool/pool-visprot/Sagar/project_arctis/chlamy/tomo/all/';  % Root folder for dataset; stack directories will be generated here.
 
 % Tomolist 
 p.tomolist_name = 'tomolist.mat';     % Relative to root_dir

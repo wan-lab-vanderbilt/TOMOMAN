@@ -10,17 +10,17 @@ clc;
 %% Inputs
 
 % Directory parameters
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';  % Root folder for dataset; stack directories will be generated here.
+p.root_dir = '/fs/pool/pool-visprot/Sagar/project_arctis/chlamy/tomo/all/';  % Root folder for dataset; stack directories will be generated here.
 
 % Tomolist 
 p.tomolist_name = 'tomolist.mat';     % Relative to root_dir
 p.log_name = 'tomoman.log';           % Relative to root_dir
 
 %%%% Clean stacks %%%%
-c.clean_stacks = 0;
 c.force_cleaning = 0;     % 1 = yes, 0 = no;
 c.clean_binning = 16;      % Binning to open 3dmod with
 c.clean_append = '';      % Append to name for cleaned stack. Setting blank ('') overwrites old file.
+c.denovo = 1;           % 1 = start from scratch, 0 = USe cleaning information from the tomolist. TODO -1 = remove additional on top of previous. 
 
 
 %% DO NOT CHANGE BELOW THIS LINE %%

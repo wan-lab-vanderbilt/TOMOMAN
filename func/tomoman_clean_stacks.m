@@ -43,37 +43,74 @@ for i = 1:n_stacks
         % Parse tomogram string
         tomo_str = strrep(tomolist(i).mdoc_name, '.st.mdoc', '');
         
-        % Determine tilts in stack
-        tilts = setdiff(tomolist(i).collected_tilts,tomolist(i).removed_tilts);
-    
-        % Launch tilt-stack in 3dmod
-        system(['3dmod -b ',num2str(c.clean_binning),' ',tomolist(i).stack_dir,tomolist(i).stack_name]);
-        
-        
-        % Ask for input about bad tilts
-        wait = 0;
-        while wait == 0
-            % Wait for user input
-            disp('Press enter for no cleaning, give tilt numbers to remove (space separated), or skip, to prevent further processing of stack');
-            assess_string = input('Which tilts should I remove? (Start counting at one) \n','s'); 
-            
-            % Empty string is no bad tilts, skip sets the skip value in the tomolist
-            if isempty(assess_string) || strcmp(assess_string,'skip')
-                wait = 1;
-            else
+        if c.denovo
+            % Determine tilts in stack
+            tilts = setdiff(tomolist(i).collected_tilts,tomolist(i).removed_tilts);
 
-                % Check input is only numbers and whitespace
-                input_check = isstrprop(assess_string, 'digit') + isstrprop(assess_string, 'wspace');
-                if ~all(input_check)
-                    disp('Your input is unacceptable!!!')
-                else
-                    bad_tilts = str2num(assess_string); %#ok<ST2NM>
+            % Launch tilt-stack in 3dmod
+            system(['3dmod -b ',num2str(c.clean_binning),' ',tomolist(i).stack_dir,tomolist(i).stack_name]);
+
+
+            % Ask for input about bad tilts
+            wait = 0;
+            while wait == 0
+                % Wait for user input
+                disp('Press enter for no cleaning, give tilt numbers to remove (space separated), or skip, to prevent further processing of stack');
+                assess_string = input('Which tilts should I remove? (Start counting at one) \n','s'); 
+
+                % Empty string is no bad tilts, skip sets the skip value in the tomolist
+                if isempty(assess_string) || strcmp(assess_string,'skip')
                     wait = 1;
+                else
+
+                    % Check input is only numbers and whitespace
+                    input_check = isstrprop(assess_string, 'digit') + isstrprop(assess_string, 'wspace');
+                    if ~all(input_check)
+                        disp('Your input is unacceptable!!!')
+                    else
+                        bad_tilts = str2num(assess_string); %#ok<ST2NM>
+                        wait = 1;
+                    end
                 end
             end
+            
+        else
+            
+            if tomolist(i).skip
+                assess_string = 'skip';
+                
+            else
+
+                % unsorted index (important for getting right file index for motion corrected mrc)
+                [sorted_tilts, ~] = sortrows(tomolist(i).collected_tilts);
+                [~,sort_tilt_idx] = setdiff(sorted_tilts,tomolist(i).removed_tilts); 
+                
+                n_collected_tilts = numel(sorted_tilts);
+                collected_tilts_idx = 1:n_collected_tilts';
+
+                exclude_idx = ~ismember(collected_tilts_idx,sort_tilt_idx);
+                bad_tilts = collected_tilts_idx(exclude_idx);
+                assess_string = sprintf('%2d',bad_tilts);
+                
+                
+
+%                 % Check if the tilts are same as aligned tilts from tlt file.
+%                 [~,imod_name,~] = fileparts(tomolist(i).dose_filtered_stack_name);
+%                 tlt_sourcefile = [tomolist(i).stack_dir,'/',imod_name,'.tlt'];
+%                 aligned_tilts = dlmread(tlt_sourcefile);
+%                 n_alitilts = numel(aligned_tilts);
+% 
+%                 if n_alitilts ~= n_tilts
+%                     error("Achtung!!! Number of aligned tilts and cleaned tilts do not match!!!!")
+%                 end
+                
+                %assess_string
+
+            end
+            
         end
-        
-        
+
+
         % If there are bad tilts, fix the stack
         if strcmp(assess_string,'skip')
             
@@ -104,7 +141,10 @@ for i = 1:n_stacks
                 exclude_list = exclude_list(1:end-1);
 
                 % Write out cleaned frame stack using newstack                
-                newstack_name = [st_name,c.clean_append,st_ext];                
+                newstack_name = [st_name,c.clean_append,st_ext];  
+                disp(['newstack -input ',tomolist(i).stack_dir,tomolist(i).stack_name,...
+                    ' -output ',tomolist(i).stack_dir,newstack_name,...
+                    ' -exclude ',exclude_list]);
                 system(['newstack -input ',tomolist(i).stack_dir,tomolist(i).stack_name,...
                     ' -output ',tomolist(i).stack_dir,newstack_name,...
                     ' -exclude ',exclude_list]);
@@ -125,18 +165,39 @@ for i = 1:n_stacks
                     tomolist(i).dose_filtered_stack_name = df_newstack_name;
                 end
 
+                
+                % Check for odd-even stacks
+                [~,st_name,st_ext] = fileparts(tomolist(i).stack_name);
+                stack_types = {'ODD','EVN'};
+                for j=1:2
+                    stack_name = [st_name,'_',stack_types{j},st_ext];
+                    newstack_name = [st_name,'_',stack_types{j},c.clean_append,st_ext]; 
+                    if isfile([tomolist(i).stack_dir,'/',stack_name])
+                        disp(['Found ', stack_name, ' stack. cleaning....'])
+                        system(['newstack -input ',tomolist(i).stack_dir,stack_name,...
+                            ' -output ',tomolist(i).stack_dir,newstack_name,...
+                            ' -exclude ',exclude_list]);
+                    end
+                end
+                
                 % Append removed_tilts
-                bad_angles = tilts(bad_tilts);
-                tomolist(i).removed_tilts = sort(cat(1,tomolist(i).removed_tilts,bad_angles'));
+                
+                if c.denovo
+                    bad_angles = tilts(bad_tilts);
+                    tomolist(i).removed_tilts = sort(cat(1,tomolist(i).removed_tilts,bad_angles'));
+                end
                 tilts = setdiff(tomolist(i).collected_tilts,tomolist(i).removed_tilts);
                 
             end
             
             % Update remaining tomolist parameters
             tomolist(i).clean_stack = true;
-            tomolist(i).rawtlt = sort(tilts);
-            tomolist(i).min_tilt = min(tilts);
-            tomolist(i).max_tilt = max(tilts);
+
+            if c.denovo
+                tomolist(i).rawtlt = sort(tilts);
+                tomolist(i).min_tilt = min(tilts);
+                tomolist(i).max_tilt = max(tilts);
+            end
             
             % Write rawtilt file
             dlmwrite([tomolist(i).stack_dir,st_name,c.clean_append,'.rawtlt'],tomolist(i).rawtlt);

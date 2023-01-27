@@ -12,7 +12,7 @@ clc;
 %% Inputs
 
 % Directory parameters
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';  % Root folder for dataset; stack directories will be generat/fs/pool/pool-plitzko/Sagar/Projects/insitu_ribosomes/yeast_tfs_brno/pt/tomo/ed here.
+p.root_dir = '/fs/pool/pool-visprot/Sagar/project_arctis/chlamy/tomo/all/';  % Root folder for dataset; stack directories will be generat/fs/pool/pool-plitzko/Sagar/Projects/insitu_ribosomes/yeast_tfs_brno/pt/tomo/ed here.
 
 % Tomolist 
 p.tomolist_name = 'tomolist.mat';     % Relative to root_dir
@@ -23,13 +23,13 @@ p.log_name = 'tomoman.log';           % Relative to root_dir
 
 ctf.force_ctffind = 0;                   % 1 = yes, 0 = no;
 ctf.imod_stack = 'unfiltered';  % Options are 'unfiltered' and 'dose_filt'.
-ctf.auto_targetdf = 0;          % Determine target defocus using the zero tilt. Default is 0;
-ctf.init_def_range = 2;         % Defocuse tolerance for determination of target defocus. 
+ctf.auto_targetdf = 1;          % Determine target defocus using the zero tilt. Default is 0;
+ctf.init_def_range = 1;         % Defocuse tolerance for determination of target defocus. 
 % ctf.rest_zeroastig = 0;       % restrict astigmatism to that of the zero tilt. Default is 0; % __FUTURE__
 
 % CTFFIND parameters
 ctffind.ps_size = 512;             % Size of power-spectrum in pixels
-ctffind.evk = 200;                 % Acceleration voltage
+ctffind.evk = 300;                 % Acceleration voltage
 ctffind.cs = 2.7;                  % Spherical aberration
 ctffind.famp = 0.07;               % Ampltidue contrast
 ctffind.min_res = 40;              % Minimum resolution to fit

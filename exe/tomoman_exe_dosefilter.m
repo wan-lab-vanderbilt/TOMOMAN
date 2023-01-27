@@ -10,21 +10,24 @@ clc;
 %% Inputs
 
 % Directory parameters
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';  % Root folder for dataset; stack directories will be generated here.
+p.root_dir = '/fs/pool/pool-visprot/forCZI/upload/test/';  % Root folder for dataset; stack directories will be generated here.
 
 % Tomolist 
 p.tomolist_name = 'tomolist.mat';     % Relative to root_dir
 p.log_name = 'tomoman.log';           % Relative to root_dir
 
 %%%% Dose filter stacks %%%%
-df.dose_filter = 1;                 % 1 = yes, 0 = no;
-df.force_dfilt = 0;                 % 1 = yes, 0 = no;
+df.force_dfilt = 1;                 % 1 = yes, 0 = no;
 df.dfilt_append = '-dose_filt';     % Append name to dose-filtered stack. Empty ('') overwrites stack; this is NOT recommended...
 df.filter_frames = 0;               % Dose filter frames instead of images. In order to do this, the OutStack MotionCor2 parameter must have been used to generate aligned frame stacks.
 df.preexposure = 0;                 % Pre-exposure prior to initial image collection.
 df.a = '';                          % Resolution-dependent critical exposure constant 'a'. Leave emtpy ('') to use default.
 df.b = '';                          % Resolution-dependent critical exposure constant 'b'. Leave emtpy ('') to use default.
 df.c = '';                          % Resolution-dependent critical exposure constant 'c'. Leave emtpy ('') to use default.
+
+
+%%%% Stack suffix to dose filter ODD/EVN or any other kind of stack %%%%
+p.stack_suffix = ''; % default is '' = original/cleaned stack, '_ODD' = odd stacks, '_EVN' = even stacks. (make sure you are using the right suffix!!)
 
 %% DO NOT CHANGE BELOW THIS LINE %%
 

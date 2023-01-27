@@ -26,6 +26,20 @@ switch p.stack
     case 'dfw'
         [~,name,~] = fileparts(t.dose_filtered_stack_name);
         stack_name = [name,'-whitened.st'];
+    case 'odd'
+        [~,name,~] = fileparts(t.stack_name);
+        stack_name = [name,'_ODD.st'];
+    case 'even'
+        [~,name,~] = fileparts(t.stack_name);
+        stack_name = [name,'_EVN.st'];
+    case 'dfodd'
+        [~,name,~] = fileparts(t.dose_filtered_stack_name);
+        stack_name = [name,'_ODD.st'];
+     case 'dfeven'
+        [~,name,~] = fileparts(t.dose_filtered_stack_name);
+        stack_name = [name,'_EVN.st'];
+       
+        
 end
         
 
@@ -209,18 +223,29 @@ else
     tomo_thick = tiltcom.THICKNESS;
 end
              
-% Reconstruct with novaCTF
+
+if p.use_radial
+    if isempty(p.radial)
+        radial_string = ['-RADIAL ',num2str(tiltcom.RADIAL(1)),',', num2str(tiltcom.RADIAL(2)),' '];
+    else
+        radial_string = ['-RADIAL ',num2str(p.radial(1)),',', num2str(p.radial(2)),' '];
+    end
+else
+    radial_string = '';
+end
+
+% Reconstruct with tilt
 fprintf(pscript,['# Reconstruct tomogram with tilt','\n']);
 fprintf(pscript,['tilt ',...
                 '-InputProjections ', t.stack_dir,'imod_batchprocess/aligned_stack.ali ',...
                 '-OutputFile ', p.main_dir,'/',num2str(t.tomo_num),'.rec ',...
                 '-IMAGEBINNED ',num2str(p.ali_stack_bin),' ',...
                 '-TILTFILE ', t.stack_dir,tltname,' ',...
-                '-THICKNESS ',num2str(tomo_thick),' ',...
-                '-RADIAL ',num2str(tiltcom.RADIAL(1)),',', num2str(tiltcom.RADIAL(2)),' ',...
+                '-THICKNESS ',num2str(tomo_thick),' ',... %                '-RADIAL ',num2str(tiltcom.RADIAL(1)),',', num2str(tiltcom.RADIAL(2)),' ',...
                 '-FalloffIsTrueSigma 1 ',...
                 '-XAXISTILT ',num2str(tiltcom.XAXISTILT),' ',...
                 '-PERPENDICULAR  ',...
+                radial_string,...
                 '-MODE 2 ',...
                 '-FULLIMAGE ',num2str(tiltcom.FULLIMAGE(1)),',', num2str(tiltcom.FULLIMAGE(2)),' ',...
                 '-SUBSETSTART ',num2str(tiltcom.SUBSETSTART(1)),',', num2str(tiltcom.SUBSETSTART(2)),' ',...

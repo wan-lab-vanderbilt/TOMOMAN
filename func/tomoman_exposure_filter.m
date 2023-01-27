@@ -60,7 +60,7 @@ for i = 1:n_stacks
         % Parse stack names
         [~,st_name,st_ext] = fileparts(tomolist(i).stack_name);
         
-        newstack_name = [st_name,df.dfilt_append,st_ext];
+        newstack_name = [st_name,df.dfilt_append,p.stack_suffix,st_ext];
         
         % Apply exposure filters
         switch df.filter_frames
@@ -70,9 +70,9 @@ for i = 1:n_stacks
                 disp('TOMOMAN: Exposure filtering image stack...')
                 
                 % Read stack
-                disp(['TOMOMAN: Reading stack ',tomolist(i).stack_name,'...']);
+                disp(['TOMOMAN: Reading stack ',st_name,p.stack_suffix,st_ext,'...']);
                 
-                [stack,header] = sg_mrcread([tomolist(i).stack_dir,tomolist(i).stack_name]);
+                [stack,header] = sg_mrcread([tomolist(i).stack_dir,st_name,p.stack_suffix,st_ext]);
                                 
                 % Force correct dose order
                 sorted_dose = sortrows(dose_array,1);
@@ -170,19 +170,21 @@ for i = 1:n_stacks
 
         
         % Update tomolist
-        tomolist(i).dose_filtered = true;
-        tomolist(i).dose_filtered_stack_name = newstack_name;
+        if isempty(p.stack_suffix)
+            tomolist(i).dose_filtered = true;
+            tomolist(i).dose_filtered_stack_name = newstack_name;
         
         
-        % Write rawtilt file
-        dlmwrite([tomolist(i).stack_dir,st_name,df.dfilt_append,'.rawtlt'],tomolist(i).rawtlt);
+            % Write rawtilt file
+            dlmwrite([tomolist(i).stack_dir,st_name,df.dfilt_append,'.rawtlt'],tomolist(i).rawtlt);
         
-        % Save tomolist
-        if write_list
-            save([p.root_dir,p.tomolist_name],'tomolist');
+            % Save tomolist
+            if write_list
+                save([p.root_dir,p.tomolist_name],'tomolist');
+            end
         end
         
-              
+                      
     end
     
 end

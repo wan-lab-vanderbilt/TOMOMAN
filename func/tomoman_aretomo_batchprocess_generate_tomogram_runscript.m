@@ -42,22 +42,38 @@ switch p.imod_stack
         error('ACTHUNG!!! Unsuppored imod_stack... Only "unfiltered" and "dose_filt" supported!!!');
 end
 
-[dir,name,~] = fileparts(imod_name);
+[dir,name,ext] = fileparts(imod_name);
 if ~isempty(dir)
     dir = [dir,'/']; %#ok<AGROW>
 end
 
-if p.imod_preali
-    imod_ext = '_preali.mrc';
-else
-    imod_ext = '.st';
-end
 
-imod_stack_name = [t.stack_dir,name,imod_ext];
+imod_stack_name = [t.stack_dir,name,ext];
 InMrc_name = [t.stack_dir,'/AreTomo/',name,'.st'];
 
 % InMrc_name = [t.stack_dir,name,'.preali'];
 OutMrc_name = [t.stack_dir,'/AreTomo/',name,'_volume.st'];
+
+
+% Check for IMOD coarse alignment xf file 
+if p.imod_preali
+    prexg_file = [t.stack_dir,name,'.prexg'];    
+    if ~isfile(prexg_file)
+        error('Prealignment transform file not found!!');
+    end
+end
+
+% heck whether to use unfiltered or dose-filtered stack for Aretomo
+% alignment
+
+if p.aretomo_useunfilt
+    imod_name2 = t.stack_name;
+    [dir2,name2,ext2] = fileparts(imod_name2);
+    if ~isempty(dir2)
+        dir2 = [dir2,'/']; %#ok<AGROW>
+    end
+    imod_stack_name = [t.stack_dir,name2,ext2];
+end
 
 % AngleFile
 tlt_name = [t.stack_dir,name,'.rawtlt'];
@@ -85,6 +101,16 @@ if ~isempty(p.Patch_x) && ~isempty(p.Patch_y)
 else
     aretomo_patch_string = '';
 end
+
+
+% Tilt Axis angle refinement 
+if ~isempty(p.tiltaxisangle)
+    aretomo_tiltaxis_string = [num2str(p.tiltaxisangle), ' ',num2str(p.tiltaxisangle_refineflag)];
+    
+else
+    aretomo_tiltaxis_string = [num2str(t.tilt_axis_angle), ' ',num2str(p.tiltaxisangle_refineflag)];
+end
+
 
 % Open run script
 rscript = fopen([t.stack_dir,'/AreTomo/run_AreTomo.sh'],'w');
@@ -119,21 +145,47 @@ fprintf(rscript,['#!/bin/bash -l\n',...
     '#load module for your application\n',...
     'module load IMOD/4.10.43\n',...
     'module load cuda/10.1\n',...
+    'module load ARETOMO/1.3.3\n',...
     'export IMOD_PROCESSORS=24\n']);                      % Get proper envionment; i.e. modules
 
-if p.aretomo_inbin > 1
-    % bin original_stack
-    fprintf(rscript,['# Fourier crop aligned stack','\n']);
-    fprintf(rscript,['newstack -InputFile ',imod_stack_name,' ',...
-                     ' -OutputFile ',InMrc_name,' ',...
-                     ' -FourierReduceByFactor ', num2str(p.aretomo_inbin),'\n\n']);
+
+% Check whether to use IMOD coarse alignment. In my experience it works
+% better in most cases, 
+
+if p.imod_preali
+    if p.aretomo_inbin > 1
+        fprintf(rscript,['# Generate and Fourier crop prealigned stack','\n']);
+        fprintf(rscript,['newstack -InputFile ',imod_stack_name,' ',...
+                         ' -OutputFile ',InMrc_name,' ',...
+                         ' -TransformFile ',prexg_file,' ',...
+                         ' -FourierReduceByFactor ', num2str(p.aretomo_inbin),'\n\n']);
+    else
+       fprintf(rscript,['# Generate prealigned stack','\n']);
+       fprintf(rscript,['newstack -InputFile ',imod_stack_name,' ',...
+                         ' -OutputFile ',InMrc_name,' ',...
+                         ' -TransformFile ',prexg_file,'\n\n']);        
+    end
+   
+
+else
+    if p.aretomo_inbin > 1
+        % bin original_stack
+        fprintf(rscript,['# Fourier crop original stack','\n']);
+        fprintf(rscript,['newstack -InputFile ',imod_stack_name,' ',...
+                         ' -OutputFile ',InMrc_name,' ',...
+                         ' -FourierReduceByFactor ', num2str(p.aretomo_inbin),'\n\n']);
+    else
+        fprintf(rscript,['# Link original stack','\n']);
+        fprintf(rscript,['ln -sf ',imod_stack_name,' ',InMrc_name,'\n\n']);        
+    end
+                 
 end
 
 % AreTomo
 fprintf(rscript,['# Process stacks','\n']);
-fprintf(rscript,[p.aretomo_exe,' -InMrc ' , InMrc_name, ' -OutMrc ',OutMrc_name, ' -AngFile ',tlt_name, ' -AlignZ ',num2str(AlignZ),' -VolZ ',num2str(VolZ), ' -Wbp ', num2str(p.Wbp), ' -Outbin ',num2str(p.aretomo_outbin./p.aretomo_inbin),' -TiltCor ',num2str(p.TiltCor), ' -TiltAxis ',num2str(t.tilt_axis_angle), aretomo_patch_string ,'\n\n']);
+fprintf(rscript,[p.aretomo_exe,' -InMrc ' , InMrc_name, ' -OutMrc ',OutMrc_name, ' -AngFile ',tlt_name, ' -AlignZ ',num2str(AlignZ),' -VolZ ',num2str(VolZ), ' -Wbp ', num2str(p.Wbp), ' -Outbin ',num2str(p.aretomo_outbin./p.aretomo_inbin),' -TiltCor ',num2str(p.TiltCor), ' -TiltAxis ',aretomo_tiltaxis_string, aretomo_patch_string ,' -DarkTol 0.001 -OutXf 1\n\n']);
 
-fprintf(rscript,['clip flipyz ',OutMrc_name, ' ', OutVol,'\n']);
+fprintf(rscript,['clip rotx ',OutMrc_name, ' ', OutVol,'\n']);
 
 % Close file and make executable
 fclose(rscript);

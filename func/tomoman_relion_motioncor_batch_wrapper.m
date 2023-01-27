@@ -29,6 +29,13 @@ end
 
 
 % EER 
+[~,header] = system(['header -eer ', input_names{1},' | grep "Number of columns"']);
+headersplit = split(header);
+eer_frames = str2num(headersplit{end-1});
+
+relionmc.eer_grouping = floor(eer_frames./relionmc.dosefractions);
+
+disp(['Using ' num2str(relionmc.dosefractions) ' dose fractions gives EER grouping of ' num2str(relionmc.eer_grouping) ])
 eer_patch = [' --eer_grouping ', num2str(relionmc.eer_grouping,'%i'), ' --eer_upsampling ', num2str(relionmc.eer_upsampling,'%i') ];
 
 
@@ -68,6 +75,22 @@ pixelsize_str = [' --angpix ',num2str(tomolist.pixelsize,'%f')];
 % Additional  string
 additional_str = [' --voltage 300 --use_own --save_noDW'];
 
+% Write aliugned frame stack string
+if relionmc.save_aligned_frames
+    aliframe_str = ' --save_aligned_frames';    
+else
+    aliframe_str = '';
+end
+
+
+
+% Write Odd/Even sums string
+if relionmc.save_OddEven
+    oddeven_str = ' --save_OddEven';   
+else
+    oddeven_str = '';
+end
+
 
 % Run Relion motioncor
 cd(relionmc_dir);
@@ -77,9 +100,11 @@ relion_import_cmd = ['relion_import --i "', '*.eer" --ofile movies.star --angpix
 %disp(relion_import_cmd);
 system(relion_import_cmd);
 
-relion_run_motioncor_cmd = ['relion_run_motioncorr_mpi ',' --i ','movies.star --j 20 --o ./MotionCorr', binfactor_str,bfactor_str,patch_str,eer_patch,gain_str,pixelsize_str,additional_str];
-%disp(relion_run_motioncor_cmd);
+relion_run_motioncor_cmd = ['relion_run_motioncorr_mpi ',' --i ','movies.star --j 20 --o ./MotionCorr', binfactor_str,bfactor_str,patch_str,eer_patch,gain_str,pixelsize_str,additional_str,aliframe_str,oddeven_str];
+% disp(relion_run_motioncor_cmd);
 system(relion_run_motioncor_cmd);
+
+
 for i = 1:n_img
     % copy input stack soft links to relion motioncor folder (this is because of relions implementation of job directory)
     [~,name,~] = fileparts(input_names{i});
@@ -95,12 +120,17 @@ for i = 1:n_img
     system(['mv ',relionmc_dir,'/MotionCorr/',outputstack_str,'.star ', output_name,'.star ']);
     system(['mv ',relionmc_dir,'/MotionCorr/',stack_str,'_shifts.eps ', output_name,'_shifts.eps ']);
     
-    % Remove MotionCor dir
-    %system('rm -r MotionCorr/');
+    if relionmc.save_OddEven
+        system(['mv ',relionmc_dir, '/MotionCorr/',outputstack_str,'_ODD.mrc ', output_name, '_ODD.mrc']);
+        system(['mv ',relionmc_dir, '/MotionCorr/',outputstack_str,'_EVEN.mrc ', output_name, '_EVN.mrc']);
+    end
+    
     
     
 end
 
+% Remove MotionCor dir
+system(['rm -r ',relionmc_dir,'MotionCorr']);
 
 
 

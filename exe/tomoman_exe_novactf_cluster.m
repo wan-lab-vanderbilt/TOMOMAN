@@ -41,11 +41,11 @@
 %% Inputs
 
 % Root dir
-root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_arctis/yeast/tomo_test/';    % Tomolist, reconstruction list, and bash scripts go here.
+root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_arctis/chlamy/tomo/all/';    % Tomolist, reconstruction list, and bash scripts go here.
 % Tomolist
 tomolist_name = 'tomolist.mat';     % Relative to rood_dir
 % Reconstruction list
-recons_list = 'recons_list.txt';    
+recons_list = 'ribo_major_tomo_list.txt';    
 
 % Parallelization on MPIB clusters
 p.n_comp = 1;     % Number of computers/nodes for distributing tomograms should be mod of tomogram number!!!!
@@ -71,9 +71,9 @@ p.goldradius = [];      % Leave blank '[]' to skip.
 % Taper
 p.taper_pixels = 100;   % Leave blank '[]' to skip.
 % Thickness
-p.tomo_thickness = 2048; % Tomogram thickness in unbinned pixels.  Overwrites the value from the Tilt.com.
+p.tomo_thickness = []; % Tomogram thickness in unbinned pixels.  Overwrites the value from the Tilt.com.
 % Bin aligned stack
-p.ali_stack_bin = [2];    % Leave blank '[]' to skip.
+p.ali_stack_bin = [];    % Leave blank '[]' to skip.
 % Radial filter
 p.radial = [];    % See RADIAL parameter for the IMOD tilt function. Leave empty '[]' to exclude parameter.
 % Bin tomogram
@@ -84,8 +84,8 @@ p.motl_name = 'none'; % Set to 'none' to disable
 p.motl_binning = 2;
 
 % Tomogram directories
-p.main_dir = [root_dir 'bin2_novactf/'];  % Destination of first tomogram
-p.bin_dir = {[root_dir 'bin4_novactf/'],[root_dir 'bin8_novactf/']};   % Destination of binned tomograms. For multiple binnings, supply as cell array.
+p.main_dir = [root_dir 'bin1_novactf/'];  % Destination of first tomogram
+p.bin_dir = {[root_dir 'bin2_novactf/'],[root_dir 'bin4_novactf/']};   % Destination of binned tomograms. For multiple binnings, supply as cell array.
 
 
 %% Set some executable paths

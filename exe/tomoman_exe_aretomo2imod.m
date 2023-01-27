@@ -10,16 +10,16 @@ clc;
 %% Inputs
 
 % Directory parameters
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';  % Root folder for dataset; stack directories will be generated here.
+p.root_dir = '/fs/pool/pool-visprot/Sagar/project_arctis/chlamy/tomo/all/';  % Root folder for dataset; stack directories will be generated here.
 
 % Tomolist 
 p.tomolist_name = 'tomolist.mat';     % Relative to root_dir
 p.log_name = 'tomoman.log';           % Relative to root_dir
 
 % Reconstruction list
-aretomo_list = 'aretomo_list2_512.txt';    
+aretomo_list = 'aretomo_list_349-712_refined_recons.txt';    
 
-p.aretomo_inbin = 4;  % Binning for the input stack for AreTomo
+p.aretomo_inbin = 2;  % Binning for the input stack for AreTomo
 p.aretomo_outbin = 8; % AreTomo binning
 
 % IMOD parameters

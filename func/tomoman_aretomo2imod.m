@@ -20,7 +20,10 @@ end
 alignfile_name = [t.stack_dir,'/AreTomo/',name,'.st.aln'];
 
 % InMrc_name = [t.stack_dir,name,'.preali'];
-[xf,tlt] = tomoman_aretomo_alnfile2tltxf(alignfile_name,p.aretomo_inbin);
+[~,tlt] = tomoman_aretomo_alnfile2tltxf(alignfile_name,p.aretomo_inbin);
+
+% Aretomo outXF file
+aretomo_xf = [t.stack_dir,'/AreTomo/',name,'.st.xf'];
 
 % Filenames to writeconverted data to!
 xf_file = [t.stack_dir,name,'.xf'];
@@ -34,15 +37,21 @@ tltxf_file = [t.stack_dir,name,'.tltxf'];
 % write xf, tltxf and tlt file in Imod folder (Added support for AreTomo on prealigned stacks! )
 
 if p.imod_preali
+    linkxf_cmd = ['cp ',aretomo_xf,' ', tltxf_file];
+    system(linkxf_cmd);
     %dlmwrite(fidxf_file,xf,'delimiter','\t'); % CHECK (CAN BE REMOVED)
-    dlmwrite(tltxf_file,xf,'delimiter','\t')
-    xfproduct_cmd = ['xfproduct -in1 ' , prexg_file, ' -in2 ', tltxf_file , ' -output ', fidxf_file ];
+    %dlmwrite(tltxf_file,xf,'delimiter','\t','precision','%10.7f')
+    tomoman_scale_xf(tltxf_file,tltxf_file,p.aretomo_inbin);
+    xfproduct_cmd = ['xfproduct -in1 ' , prexg_file, ' -in2 ', tltxf_file , ' -output ', fidxf_file , ' -scale 1.0,1.0'];
     system(xfproduct_cmd);
     xfcopy_cmd = ['b3dcopy -p ', fidxf_file, ' ',xf_file];
     system(xfcopy_cmd);
     
 else    
-    dlmwrite(xf_file,xf,'delimiter','\t');
+    linkxf_cmd = ['cp ',aretomo_xf,' ', xf_file];
+    system(linkxf_cmd);
+    tomoman_scale_xf(xf_file,xf_file,p.aretomo_inbin);
+    %dlmwrite(xf_file,xf,'delimiter','\t','precision','%10.7f');
     %dlmwrite(fidxf_file,xf,'delimiter','\t'); % CHECK (CAN BE REMOVED)
     
 end
@@ -84,8 +93,7 @@ fprintf(tiltcom,['$tilt -StandardInput\n',...
     'OutputFile ',tomo_name,'\n',...
     'IMAGEBINNED ',num2str(p.aretomo_outbin),'\n',...
     'TILTFILE ',tlt_name,'\n',...
-    'THICKNESS ',num2str(VolZ),'\n',...
-    'RADIAL 0.35 0.035\n',...
+    'THICKNESS ',num2str(VolZ),'\n',...    %'RADIAL 0.35 0.035\n',...
     'FalloffIsTrueSigma 1\n',...
     'XAXISTILT 0.0\n',...
     'SCALE 0.0 1.0 \n',...

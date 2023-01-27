@@ -10,16 +10,16 @@ clc;
 %% Inputs
 
 % Root dir
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';    % Tomolist, reconstruction list, and bash scripts go here.
+p.root_dir = '/fs/pool/pool-visprot/Sagar/project_arctis/chlamy/tomo/all/';    % Tomolist, reconstruction list, and bash scripts go here.
 
 % Tomolist
 tomolist_name = 'tomolist.mat';     % Relative to rood_dir
 % Reconstruction list
-aretomo_list = 'aretomo_list2.txt';    
+aretomo_list = 'aretomo_list_349-712_refined.txt';    
 
 % Parallelization on MPIB clusters
-p.n_comp = 1;     % Number of computers/nodes for distributing tomograms should be mod of tomogram number!!!!
-p.n_cores = 1;   % Number of cores per computer (20 for local, 40 for p.512g, 16 for p.192g)!!!!
+p.n_comp = 10;     % Number of computers/nodes for distributing tomograms should be mod of tomogram number!!!!
+p.n_cores = 24;   % Number of cores per computer (20 for local, 40 for p.512g, 16 for p.192g)!!!!
 p.queue = 'p.hpcl8'; % Queue: "local" or "p.512g"(hpcl7xxx) or "p.192g"(hpcl4xxx) I suggest to use hpcl4xxx for optimal resource usage!
 
 % Outputs
@@ -30,25 +30,28 @@ p.imod_stack = 'dose_filt';  % Which stack was used for IMOD alignment. Options 
 p.imod_preali = 1;           % Whether to use original stack (0) or IMOD coarse aligned stack (1), make sure imod_param.coarsealignbin in exe_imod_preprocess is set to 1.
 
 % Tomogram directories
-p.main_dir = [p.root_dir 'bin8_areTomo/'];  % Destination of first tomogram (MAKE SURE IT"S THE RIGHT BINNING)
+p.main_dir = [p.root_dir 'bin8_aretomo_349-712/'];  % Destination of first tomogram (MAKE SURE IT"S THE RIGHT BINNING)
 
 % Known Tilt Angle Offset in case of lamellae (Tip: if pretilt off lamella is -10 then tilt angle offset is 10)
 p.titlangleoffset = 0; % Angle offset in digrees
 
 % AreTomo Params
-p.aretomo_inbin = 4;  % Binning for the input stack 
+p.aretomo_useunfilt = 1; % use non dose-weighted stack for aretomo
+p.aretomo_inbin = 2;  % Binning for the input stack 
 p.aretomo_outbin = 8;              % AreTomo binning
-p.Wbp = 1;      % Voltage
-p.TiltCor = 0;  % correct tilt angle offset
+p.Wbp = 1;      % Use Weighted Back Projection for reconstruction 
+p.TiltCor = 1;  % correct tilt angle offset
 p.Patch_x = 0; % number of Patches in X
 p.Patch_y = 0; % number of Patches in Y
+p.tiltaxisangle = ''; % leave empty to use the one from the Tomolist. 
+p.tiltaxisangle_refineflag = 0; % Refineflag: Default is 1 as defined in the Aretomo Manual section 16. 
 
 % % In case you want to just reconstruct previously aligned tomo 
 % p.aretomo_reconstruct = 1; 
 % p.goldradius = [];  % Leave blank '[]' to skip.
 
 % AreTomo executive
-p.aretomo_exe = '/fs/pool/pool-plitzko/Sagar/scripts/3rd_party/AreTomo/AreTomo_1.0.1-03-12-2021/AreTomo_1.0.1-Cuda101';
+p.aretomo_exe = '/fs/pool/pool-plitzko/Sagar/scripts/3rd_party/AreTomo/AreTomo_1.2.0_06-23-2022/AreTomo_1.2.0_Cuda101_06-23-2022';
 
 %% Initialize
 

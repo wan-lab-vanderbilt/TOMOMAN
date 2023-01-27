@@ -10,7 +10,7 @@ clc;
 %% Inputs
 
 % Directory parameters
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';  % Root folder for dataset; stack directories will be generated here.
+p.root_dir = '/fs/pool/pool-visprot/Sagar/project_arctis/chlamy/tomo/all/';  % Root folder for dataset; stack directories will be generated here.
 
 % Tomolist 
 p.tomolist_name = 'tomolist.mat';     % Relative to root_dir
@@ -20,13 +20,22 @@ p.log_name = 'tomoman.log';           % Relative to root_dir
 a.force_realign = 0;                  % 1 = yes, 0 = no;
 a.image_size = [4096,4096];           % 4096 for 4k rendering, 8192 for 8k rendering (NOT RECOMMENDED)
 a.stack_prefix = 'AUTO';
+a.stack_suffix = '';                    % Stack suffix. for example when you want to write 8k stack :-O!!! 
+
 % Relion's motioncor parameters
 relionmc.input_format = 'eer';    % 'tiff' or 'mrc' or 'eer'
 relionmc.patch = [1,1];            % Number of patches to be used for patch based alignment, default 0 0 corresponding full frame alignment.
 relionmc.bin_factor = 1;                 % Maximum iterations for iterative alignment, default 5 iterations.
 relionmc.bfactor = 150;                 % B-Factor for alignment, default 150.
-relionmc.eer_grouping = 45;            % EER grouping, default 40 
+relionmc.dosefractions = 10;            % EER grouping, default 40 
 relionmc.eer_upsampling = 1;            % EER upsampling (1 = 4K or 2 = 8K)
+
+
+% REL-MOTIONCOR module options (special relion 4.0 version to write aligned frame stack, and ODD/EVEN sums.)
+% IMPORTANT; make sure you have the module "module load REL-MOTIONCOR/4.0"
+% You have to make sure you unload any RELION modules
+relionmc.save_aligned_frames = 0; % Save aligned but not summed frame stack.
+relionmc.save_OddEven = 1; % Save ODD and EVEN sums for denoising.
 
 %% DO NOT CHANGE BELOW THIS LINE %%
 
@@ -46,7 +55,7 @@ end
 %% Check dependencies
 
 % List of dependent commands
-dependencies = {'ctffind'};
+dependencies = {'relion'};
 
 % Loop through and test commands
 for i = 1:numel(dependencies)

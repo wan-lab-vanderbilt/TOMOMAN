@@ -36,9 +36,13 @@ c = 0;
 
             % Write lines
             if c == 0   
-                fprintf(bscript,['sbatch ',t(j).stack_dir,'/AreTomo/run_AreTomo.sh','\n']);
+                fprintf(bscript,['JOBID=$(sbatch ',t(j).stack_dir,'/AreTomo/run_AreTomo.sh',' 2>&1 | awk ','''','{print $(NF)}','''',')\n']);
+                fprintf(bscript,['echo ''''  '''' ${JOBID}','\n']);
+                %fprintf(bscript,['sbatch ',t(j).stack_dir,'/AreTomo/run_AreTomo.sh','\n']);
             else
-                fprintf(bscript,['sbatch ',t(j).stack_dir,'/AreTomo/run_AreTomo.sh','\n']);
+                fprintf(bscript,['JOBID=$(sbatch --dependency=afterany:${JOBID} ',t(j).stack_dir,'/AreTomo/run_AreTomo.sh',' 2>&1 | awk ','''','{print $(NF)}','''',')\n']);
+                fprintf(bscript,['echo ''''  '''' ${JOBID}','\n']);
+                %fprintf(bscript,['sbatch ',t(j).stack_dir,'/AreTomo/run_AreTomo.sh','\n']);
             end
             c = c + 1;
         end
@@ -48,5 +52,14 @@ c = 0;
 fclose(bscript);
 system(['chmod +x ',root_dir,'/',script_name,'_',num2str(i),'.sh']);
 
+end
+
+submit_all_filename = [root_dir,'/',script_name,'_all.sh'];
+submit_file = fopen(submit_all_filename,'w');
+for i = 1:n_jobs
+    fprintf(submit_file,[root_dir,'/',script_name,'_',num2str(i),'.sh\n']);    
+end
+fclose(submit_file);
+system(['chmod +x ',submit_all_filename]);
 end
 

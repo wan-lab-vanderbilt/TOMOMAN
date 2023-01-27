@@ -10,7 +10,7 @@ clc;
 %% Inputs
 
 % Directory parameters
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';  % Root folder for dataset; stack directories will be generated here.
+p.root_dir = '/fs/pool/pool-plitzko/Sagar/software/sagar/tomoman/10-2020/test/';  % Root folder for dataset; stack directories will be generated here.
 
 % Tomolist 
 p.tomolist_name = 'tomolist.mat';     % Relative to root_dir
@@ -46,7 +46,7 @@ mc2.Gpu = '2 3';                  % GPU IDs. Default 0. For multiple GPUs, separ
 
 %% EER specific part
 mc2.EerSampling = 1;        % EER sampling for final render. Set to 1 for 4k, and 2 for 8k. 
-mc2.EerGrouping = 45;       % How many EER frames to group into a single dose fraction. REMEMBER, frames at the end of exposure that do not go into a whole fraction are discarded. 
+mc2.EerGrouping = 15;       % How many EER frames to group into a single dose fraction. REMEMBER, frames at the end of exposure that do not go into a whole fraction are discarded. 
 mc2.FmIntFile = '';         % Dose fractionation file. "Expert only" option. 
 
 

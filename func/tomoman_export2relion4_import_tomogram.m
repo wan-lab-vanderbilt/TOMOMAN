@@ -1,10 +1,16 @@
-function [temptomostar,tempcoords] = tomoman_export2relion4_import_tomogram(t,motl,relion4dir,imod_stack)
+function [temptomostar,tempcoords] = tomoman_export2relion4_import_tomogram(p,t,motl,relion4dir,imod_stack)
 
 % Parse stack name (always non dose weighted!!!)
-[~,rlnTomoName,ext] = fileparts(t.stack_name);
+if p.if_superres
+    [~,~,ext] = fileparts(t.stack_name);
+    [~,rlnTomoName,~] = fileparts(t.mdoc_name);
+else
+
+    [~,rlnTomoName,ext] = fileparts(t.stack_name);
+end
 temptomostar.rlnTomoName = rlnTomoName;
 
-% Parse Imo/AreTomo alignment names
+% Parse Imod/AreTomo alignment names
 switch imod_stack
     case 'unfiltered'
         [~,imod_name,~] = fileparts(t.stack_name);
@@ -34,15 +40,15 @@ end
 
 %% Check if tilt stack file exists and add relevant fields
 stack_sourcefile = [t.stack_dir,t.stack_name];
-stack_targetfile = [rlnTomoImportImodDir,'/',t.stack_name];
+stack_targetfile = [rlnTomoImportImodDir,'/',rlnTomoName,ext];
 if exist(stack_sourcefile,'file')
     ln_cmd = ['ln -sf ',stack_sourcefile,' ',stack_targetfile];
     system(ln_cmd);
     switch ext
         case '.st'
-            temptomostar.rlnTomoTiltSeriesName = ['tomograms/',rlnTomoName,'/',t.stack_name,':mrc'];
+            temptomostar.rlnTomoTiltSeriesName = ['tomograms/',rlnTomoName,'/',rlnTomoName,ext,':mrc'];
         case '.mrc'
-            temptomostar.rlnTomoTiltSeriesName = ['tomograms/',rlnTomoName,'/',t.stack_name];
+            temptomostar.rlnTomoTiltSeriesName = ['tomograms/',rlnTomoName,'/',rlnTomoName,ext];
         otherwise
             error('Only .st or .mrc extensions are supported!!!')
     end
@@ -51,6 +57,7 @@ else
 end
     
 %% Check if the ctfphaseflip file exists and add relevant fields
+% failsafe for 8k transfer 
 ctfphaseflip_sourcefile = [t.stack_dir,'/ctffind4/','diagnostic_',rlnTomoName,'.txt'];
 ctfphaseflip_targetfile = [rlnTomoImportImodDir,'/ctfphaseflip_',t.ctf_determination_algorithm,'.txt'];
 
@@ -85,10 +92,15 @@ end
 xf_sourcefile = [t.stack_dir,'/',imod_name,'.xf'];
 xf_targetfile = [rlnTomoImportImodDir,'/',rlnTomoName,'.xf'];
 if exist(xf_sourcefile,'file')
-    ln_cmd = ['ln -sf ',xf_sourcefile,' ',xf_targetfile];
+    ln_cmd = ['cp ',xf_sourcefile,' ',xf_targetfile]; % changed "ln -sf" to "cp" in order to accomodate 8k export.
     system(ln_cmd);
 else
     error('.xf file not found!!!');
+end
+
+% check whether to rescale the xf file for superres or 8k. 
+if p.if_superres
+    tomoman_rescale_imodxf(xf_targetfile,xf_targetfile,2);
 end
 
 
@@ -99,7 +111,7 @@ if exist(newstcom_sourcefile,'file')
     %newstcom = tomoman_imod_parse_newstcom(newstcom_sourcefile);
     newstcomfile = fopen(newstcom_targetfile,'w');
     fprintf(newstcomfile,['$newstack -StandardInput\n',...
-        'InputFile	',t.stack_name,'\n',...
+        'InputFile	',rlnTomoName,ext,'\n',...
         'OutputFile	',rlnTomoName,'.ali\n',...
         'TransformFile	',rlnTomoName,'.xf\n',...
         'TaperAtFill	1,0\n',...
@@ -116,30 +128,62 @@ end
 % Tilt.com
 tiltcom_sourcefile = [t.stack_dir,'/tilt.com'];
 tiltcom_targetfile = [rlnTomoImportImodDir,'/tilt.com'];
+
+
+
+
+
+
 if exist(tiltcom_sourcefile,'file')
     tiltcom = tomoman_imod_parse_tiltcom(tiltcom_sourcefile);
-    % check for shift
-    if ~isempty(tiltcom.SHIFT)
-        shiftstr = ['SHIFT	',num2str(tiltcom.SHIFT(1)),' ', num2str(tiltcom.SHIFT(2))];
+    
+    % Check if superres
+
+    if p.if_superres
+
+        thickness = (tiltcom.THICKNESS).*2;
+        fullimage1 = (tiltcom.FULLIMAGE(1)).*2;
+        fullimage2 = (tiltcom.FULLIMAGE(2)).*2;
+        offset = (tiltcom.OFFSET).*2;
         
-    else 
-        shiftstr = ' ';
+        if ~isempty(tiltcom.SHIFT)
+            shiftstr = ['SHIFT	',num2str(tiltcom.SHIFT(1).*2),' ', num2str(tiltcom.SHIFT(2).*2)];
+
+        else 
+            shiftstr = ' ';
+        end
+        
+    else
+        thickness = (tiltcom.THICKNESS);
+        fullimage1 = (tiltcom.FULLIMAGE(1));
+        fullimage2 = (tiltcom.FULLIMAGE(2));
+        offset = (tiltcom.OFFSET);
+
+
+        % check for shift
+    
+        if ~isempty(tiltcom.SHIFT)
+            shiftstr = ['SHIFT	',num2str(tiltcom.SHIFT(1)),' ', num2str(tiltcom.SHIFT(2))];
+
+        else 
+            shiftstr = ' ';
+        end
     end
-        
+
     tiltcomfile = fopen(tiltcom_targetfile,'w');
     fprintf(tiltcomfile,['$tilt -StandardInput\n',...
                 'InputProjections	', rlnTomoName,'.ali\n',...
                 'OutputFile	', rlnTomoName,'.rec\n',...
                 'IMAGEBINNED	1\n',...
                 'TILTFILE	',rlnTomoName ,'.tlt\n',...
-                'THICKNESS	',num2str(tiltcom.THICKNESS),' \n',...                %'-RADIAL ',num2str(tiltcom.RADIAL(1)),',', num2str(tiltcom.RADIAL(2)),' ',...                '-FalloffIsTrueSigma 1 ',...
+                'THICKNESS	',num2str(thickness),' \n',...                %'-RADIAL ',num2str(tiltcom.RADIAL(1)),',', num2str(tiltcom.RADIAL(2)),' ',...                '-FalloffIsTrueSigma 1 ',...
                 'XAXISTILT	',num2str(tiltcom.XAXISTILT),' \n',...
                 'PERPENDICULAR	\n',...
                 'MODE	2 \n',...
-                'FULLIMAGE	',num2str(tiltcom.FULLIMAGE(1)),' ', num2str(tiltcom.FULLIMAGE(2)),' \n',...
+                'FULLIMAGE	',num2str(fullimage1),' ', num2str(fullimage2),' \n',...
                 'SUBSETSTART ',num2str(tiltcom.SUBSETSTART(1)),' ', num2str(tiltcom.SUBSETSTART(2)),' \n',...
                 'AdjustOrigin	\n',...
-                'OFFSET	',num2str(tiltcom.OFFSET),' \n',...
+                'OFFSET	',num2str(offset),' \n',...
                 shiftstr,'\n']);
     fclose(tiltcomfile);
     
@@ -167,11 +211,14 @@ end
 
 temptomostar.rlnTomoImportOrderList = ['tomograms/',rlnTomoName,'/',rlnTomoName,'.order'];
 
-% generate tomogram particle list
-rlntomocoord2_2 = tomoman_motl_stopgap_to_rlntomocoord2_2(motl);
 
 rlntomocoord2_2_name = [rlnTomoImportImodDir,'/particle_coords.star'];
-tomoman_rlntomocoord2_2_write(rlntomocoord2_2_name,rlntomocoord2_2);
+
+% generate tomogram particle list
+if ~p.onlyexport_tomos
+    rlntomocoord2_2 = tomoman_motl_stopgap_to_rlntomocoord2_2(motl);
+    tomoman_rlntomocoord2_2_write(rlntomocoord2_2_name,rlntomocoord2_2);
+end
 
 % update tempcoords
 tempcoords.rlnTomoName = rlnTomoName;

@@ -8,10 +8,10 @@ close all;
 clc;
 
 %% Inputs
-experiment = '21122021'; % New data should be linked inside an experiment folder in the root directory
+experiment = '17072022/'; % New data should be linked inside an experiment folder in the root directory
 
 % Directory parameters
-p.root_dir = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/';  % Root folder for dataset; stack directories will be generated here.
+p.root_dir = '/fs/pool/pool-visprot/Sagar/project_arctis/chlamy/tomo/all/';  % Root folder for dataset; stack directories will be generated here.
 p.raw_stack_dir = [p.root_dir,experiment '/raw_data/' ];         % Folder containing raw stacks (It is recommended to use links)
 p.raw_frame_dir = [p.root_dir,experiment '/frames/' ];      % Folder containing unsorted frames (It is recommended to use links)
 
@@ -25,18 +25,18 @@ p.prefix = 'AUTO';      % Beginning of stack/mdoc names (e.g. stackname is [pref
 p.raw_stack_ext = '.st';  % File extension of raw stacks
 
 % Data collection parameters
-p.gainref = '/fs/pool/pool-plitzko/Sagar/Projects/project_tomo200k/invitro/apof_nnp/tomo/21122021/gainref/NNP-G-20211217_101437_EER_GainReference.gain';       % For no gainref, set to 'none, set to 'AUTO' if you are lazy!
+p.gainref = '/fs/pool/pool-plitzko/Sagar/Data/fromTFS/Arctis/chlamy/17072022/gainref/20220717_000157_EER_GainReference.gain';       % For no gainref, set to 'none, set to 'AUTO' if you are lazy!
 p.defects_file = [p.root_dir,'none'];   % For no defects_file, set to 'none'
 p.rotate_gain = 0;                                                  % Gain ref rotation
 p.flip_gain = 0;                                                    % Gain ref flip; 0 = none, 1 = up/down, 2 = left/right
 p.os = 'windows';                                                   % Operating system for data collection. Options are 'windows' and 'linux'
-p.mirror_stack = 'none';                                               % Mirror images, MAKE SURE YOU KNOW YOUR STUFF!!;
+p.mirror_stack = 'y';                                               % Mirror images, MAKE SURE YOU KNOW YOUR STUFF!!;
 
 
 % Overrides (set to '' for no override)
-ov.tilt_axis_angle = '';    % Tilt axis angle in degrees
-ov.dose_rate = 9.39;  % e/pixel/s
-ov.pixelsize = '';  % Pixel size in Angstroms
+ov.tilt_axis_angle = -85;    % Tilt axis angle in degrees
+ov.dose_rate = 9.05;  % e/pixel/s
+ov.pixelsize = 1.96;  % Pixel size in Angstroms
 ov.target_defocus = []; % Target defocus in Microns
 
 %%%% Find and sort new stacks? %%%%
@@ -46,7 +46,7 @@ s.ignore_missing_frames = 0;          % Move files even if frames are missing
 %%%% Tomo5 specific part %%%%
 p.if_tomo5 = 1; % Default= 0. whether or not the Data was aquired with Tomo5 
 p.if_tomo5_subframepath_missing = 0; %(only valid for TOmo5 mdoc bug with subframepath)
-p.if_tomo5_subframepath_rounderror = 1; %(only valid for TOmo5 mdoc bug with subframepath)
+p.if_tomo5_subframepath_rounderror = 0; %(only valid for TOmo5 mdoc bug with subframepath)
 
 %%%% EER bugs %%%%
 p.if_eer_serialembug = 0; % ! for EER, 0 for MRC

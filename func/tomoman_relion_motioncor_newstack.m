@@ -76,12 +76,18 @@ for i = 1:n_stacks
         % Assemble new stack
         disp(['Motion correction complete on stack ',tomo_str,'... Generating new stack!!!']);        
         
+        % Check for a suffix
+        if ~isempty(a.stack_suffix)
+            suffix = ['_',a.stack_suffix]; 
+        else
+            suffix = '';
+        end
         
         % New stack parameters
         if ~isempty(a.stack_prefix) && (~strcmp(a.stack_prefix, 'AUTO'))
-            stack_names = {[p.prefix,tomo_str,'.st']};
+            stack_names = {[p.prefix,tomo_str,suffix,'.st']};
         else
-            stack_names = {[tomo_str,'.st']};
+            stack_names = {[tomo_str,suffix,'.st']};
         end
         stack_types = {'normal'};
         num_stacks = 1;            
@@ -131,6 +137,44 @@ for i = 1:n_stacks
             save([p.root_dir,p.tomolist_name],'tomolist');
         end
         
+        
+        % Generate odd/even stacks
+        if relionmc.save_OddEven == 1
+            if ~isempty(a.stack_prefix) && (~strcmp(a.stack_prefix, 'AUTO'))
+                stack_names = {[p.prefix,tomo_str,suffix,'_ODD.st'],[p.prefix,tomo_str,suffix,'_EVN.st']};
+            else
+                stack_names = {[tomo_str,suffix,'_ODD.st'],[tomo_str,suffix,'_EVN.st']};
+            end
+            
+            num_stacks = 2;
+            stack_types = {'ODD','EVN'};
+            new_stack = struct;
+            for j = 1:num_stacks
+
+                for k = 1:n_tilts
+
+                    % Read image
+                    img = sg_mrcread([relionmc_dir,tomo_str,'_',num2str(k),'_',stack_types{j},'.mrc']);
+
+                    % Initialize stacks
+                    if k == 1
+                        new_stack.(stack_types{j}) = zeros(a.image_size(1),a.image_size(2),n_tilts,'like',img); % In the loop so that it picks up the datatype
+                    end
+
+                    % Resize image
+                    img = tomoman_resize_stack(img,a.image_size(1),a.image_size(2),true);
+                    if ~strcmp(tomolist(i).mirror_stack,'none') || isempty(tomolist(i).mirror_stack)
+                        img = tom_mirror(img,tomolist(i).mirror_stack);
+                    end
+                    new_stack.(stack_types{j})(:,:,k) = img;
+                end
+
+                % Write outputs        
+                header = sg_generate_mrc_header;
+                header = sg_append_mrc_label(header,'TOMOMAN: Frames aligned with Relion Motioncor implementation.');
+                sg_mrcwrite([tomolist(i).stack_dir,stack_names{j}],new_stack.(stack_types{j}),header,'pixelsize',tomolist(i).pixelsize);
+            end
+        end
         
     end
     
