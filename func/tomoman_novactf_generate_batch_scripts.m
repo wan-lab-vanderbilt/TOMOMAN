@@ -66,21 +66,41 @@ for i = 1:n_jobs
                 fprintf(bscript,[t(j).stack_dir,'novactf/run_novaCTF.sh','\n']);
             end
             
+            
         case 'p.hpcl67'
             for j = job_array(i,2):job_array(i,3)
 
                 % Write lines
                 if c == 0   
-                    fprintf(bscript,['sbatch ',t(j).stack_dir,'novactf/run_novaCTF.sh','\n']);
+                    fprintf(bscript,['JOBID=$(sbatch ',t(j).stack_dir,'novactf/run_novaCTF.sh',' 2>&1 | awk ','''','{print $(NF)}','''',')\n']);
+                    fprintf(bscript,['echo ''''  '''' ${JOBID}','\n']);
+                    %fprintf(bscript,['sbatch ',t(j).stack_dir,'novactf/run_novaCTF.sh','\n']);
                 else
-                    fprintf(bscript,['sbatch ',t(j).stack_dir,'novactf/run_novaCTF.sh','\n']);
+                    fprintf(bscript,['JOBID=$(sbatch --dependency=afterany:${JOBID} ',t(j).stack_dir,'novactf/run_novaCTF.sh',' 2>&1 | awk ','''','{print $(NF)}','''',')\n']);
+                    fprintf(bscript,['echo ''''  '''' ${JOBID}','\n']);
+                    %fprintf(bscript,['sbatch ',t(j).stack_dir,'novactf/run_novaCTF.sh','\n']);
+                end
+                c = c + 1;
+            end
+            
+        case 'p.hpcl8'
+            for j = job_array(i,2):job_array(i,3)
+
+                % Write lines
+                if c == 0   
+                    fprintf(bscript,['JOBID=$(sbatch ',t(j).stack_dir,'novactf/run_novaCTF.sh',' 2>&1 | awk ','''','{print $(NF)}','''',')\n']);
+                    fprintf(bscript,['echo ''''  '''' ${JOBID}','\n']);
+                    %fprintf(bscript,['sbatch ',t(j).stack_dir,'novactf/run_novaCTF.sh','\n']);
+                else
+                    fprintf(bscript,['JOBID=$(sbatch --dependency=afterany:${JOBID} ',t(j).stack_dir,'novactf/run_novaCTF.sh',' 2>&1 | awk ','''','{print $(NF)}','''',')\n']);
+                    fprintf(bscript,['echo ''''  '''' ${JOBID}','\n']);
+                    %fprintf(bscript,['sbatch ',t(j).stack_dir,'novactf/run_novaCTF.sh','\n']);
                 end
                 c = c + 1;
             end
             
         otherwise
-               error('only "local" or "p.hpcl67" are supported for p.queue!!!!')
-            
+               error('only "local" or "p.hpcl67" or "p.hpcl8" are supported for p.queue!!!!')
         
     end
     
@@ -91,4 +111,12 @@ for i = 1:n_jobs
 
 end
 
+submit_all_filename = [root_dir,'/',script_name,'_all.sh'];
+submit_file = fopen(submit_all_filename,'w');
+for i = 1:n_jobs
+    fprintf(submit_file,[root_dir,'/',script_name,'_',num2str(i),'.sh\n']);    
+end
+fclose(submit_file);
+system(['chmod +x ',submit_all_filename]);
 
+end
