@@ -50,7 +50,7 @@ tltname = [name,'.tlt'];
 tilts = dlmread([t.stack_dir,tltname]);
 [~,zerotlt_ndx] = min(abs(tilts+tiltcom.OFFSET));
 
-% check whether to apply pretilt to angles in .tlt file 
+% check whether to apply pretilt to angles in .tlt file (depricated in future versions!!)
 if p.pretilt 
     tlt_name = [t.stack_dir,'/',name,'.tlt'];
     tlt_backup_name = [t.stack_dir,name,'_orig.tlt'];

@@ -1,4 +1,4 @@
-function rlntomocoord2_2 = tomoman_motl_stopgap_to_rlntomocoord2_2(motl)
+function rlntomocoord2_2 = tomoman_motl_stopgap_to_rlntomocoord2_2(motl,pixelsize)
 %% sg_motl_dynamo_to_stopgap
 % Convert a stopgap .star motivelist to a Relion formated star file for particles in a SINGLE tomogram.
 %
@@ -24,9 +24,9 @@ rlnangles_array = cell2mat(rlnangles_cell);
 rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnCoordinateX',[motl.orig_x]);
 rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnCoordinateY',[motl.orig_y]);
 rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnCoordinateZ',[motl.orig_z]);
-% rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnOriX',[motl.x_shift]);
-% rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnOriY',[motl.y_shift]);
-% rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnOriZ',[motl.z_shift]);
+rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnOriginXAngst',[motl.x_shift].*pixelsize);
+rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnOriginYAngst',[motl.y_shift].*pixelsize);
+rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnOriginZAngst',[motl.z_shift].*pixelsize);
 rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnAngleRot',rlnangles_array(:,1));
 rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnAngleTilt',rlnangles_array(:,2));
 rlntomocoord2_2 = tomoman_rlntomocoord2_2_fill_field(rlntomocoord2_2,'rlnAnglePsi',rlnangles_array(:,3));

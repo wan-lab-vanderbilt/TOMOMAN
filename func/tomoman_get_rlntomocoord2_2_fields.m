@@ -7,9 +7,9 @@ function rlntomocoord2_2_fields = tomoman_get_rlntomocoord2_2_fields()
 rlntomocoord2_2_fields = {'rlnCoordinateX', 'num', 'float';
                'rlnCoordinateY', 'num', 'float';
                'rlnCoordinateZ', 'num', 'float';
-%                'rlnOriX', 'num', 'float';
-%                'rlnOriY', 'num', 'float';
-%                'rlnOriZ', 'num', 'float';
+               'rlnOriginXAngst', 'num', 'float';
+               'rlnOriginYAngst', 'num', 'float';
+               'rlnOriginZAngst', 'num', 'float';
                'rlnAngleRot', 'num', 'float';
                'rlnAngleTilt', 'num', 'float';
                'rlnAnglePsi', 'num', 'float'};

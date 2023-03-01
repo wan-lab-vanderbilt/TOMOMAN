@@ -11,7 +11,7 @@ clc;
 
 % Input dir
 p.root_dir = '/fs/pool/pool-sagar/Sagar/Projects/insitu_ribosomes/yeast_tfs_brno/pt/tomo/';    % Tomolist, reconstruction list, and bash scripts go here.
-p.empiar_dir = '/fs/pool/pool-sagar/Sagar/Depositions/sputter/empiar/pt/'; % Target Relion directory. You would start Relion using "relion --tomo&" from this directory
+p.archive_dir = '/fs/pool/pool-sagar/Sagar/Depositions/sputter/empiar/pt/'; % Target Relion directory. You would start Relion using "relion --tomo&" from this directory
 
 
 % Input lists

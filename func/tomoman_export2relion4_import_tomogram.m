@@ -216,7 +216,7 @@ rlntomocoord2_2_name = [rlnTomoImportImodDir,'/particle_coords.star'];
 
 % generate tomogram particle list
 if ~p.onlyexport_tomos
-    rlntomocoord2_2 = tomoman_motl_stopgap_to_rlntomocoord2_2(motl);
+    rlntomocoord2_2 = tomoman_motl_stopgap_to_rlntomocoord2_2(motl,t.pixelsize);
     tomoman_rlntomocoord2_2_write(rlntomocoord2_2_name,rlntomocoord2_2);
 end
 
