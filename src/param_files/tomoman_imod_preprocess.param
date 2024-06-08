@@ -1,0 +1,57 @@
+## tomoman_imod_preprocess
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+# TOMOMAN parameters
+force_imod = 0                      # 1 = yes, 0 = no
+process_stack = dose-filtered       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+
+# Copytomocoms
+copytomocoms = 1                    # Run copytomocoms
+goldsize = 25                       # Gold diameter (nm). Set to 0 for no gold.
+rotation = none                     # Tilt axis rotation (deg), leave empty to use from the tomolist. 
+
+# CCD Eraser
+ccderaser = 1                       # Run CCD Eraser. (1 = yes, 0 = no)
+archiveoriginal = 0                 # Archive and delete original stack. (1 = yes, 0 = no)
+
+# Coarse alignment
+coarsealign = 1                     # Perform coarse alignment 
+tiltxcorrbinning = 8                # Bin factor for calculating coarse alignment in tiltxcorr
+tiltxcorrangleoffset = 0            # Offset angle (pretilt) for coarse alignment
+ExcludeCentralPeak = 0              # Exclude central peak?
+ShiftLimitsXandY = ''               # Maximum shift in unbinned pixels.
+coarsealignbin = 8                  # Bin factor for generating coarse pre-aligned stack
+coarseantialias = 6                 # Antialiasing filter for coarse alignment. 1 - box, 2 - blackman, 3 - triangle, 4 mitchell, 5 - lanczos 2 lobes, 6 - lanczos 3 lobes (default). See newstack documentation for more information.
+convbyte = /                        # Convert to bytes: '/' = no, '0' = yes
+
+# Tracking Choices
+tracking_method = 1                 # Tracking method. -1 to disable, 0 for seed and track, 1 for patch tracking.
+
+# Autoseed and beadtrack
+two_surf = 0                        # Track beads on two surfaces. (1 = yes, 0 = no)
+n_beads = 20                        # Target number of beads
+adjustsize = 1                      # Adjust size of beads based on average bead size. (1 = yes, 0 = no)
+localareatracking = 0               # Local area bead tracking. (1 = yes, 0 = no)
+localareasize = 1000                # Size of local area
+sobelfilter = 1                     # Use Sobel filter. (1 = yes, 0 = no)
+sobelkernel = 1.5                   # Sobel filter kernel. (default 1.5)
+n_rounds = 2                        # Number of rounds of tracking in run (default = 2)
+n_runs = 2                          # Number of times to run beadtrack (default = 2)
+
+# Patch tracking 
+SizeOfPatchesXandY = 100,100        # Size in X and Y of patches to track
+NumberOfPatchesXandY = 10,10        # Number of patches to track in X and Y. NOTE: May not be entered with OverlapOfPatchesXandY; set to none if not using. 
+OverlapOfPatchesXandY = 0.33,0.33   # Overlap of patches in X and Y (negative allowed; default is 0.33 0.33). NOTE: May not be entered with NumberOfPatchesXandY; set to none if not using.
+IterateCorrelations = 1             # Number of iterations
+
+
+
+
+
+
+

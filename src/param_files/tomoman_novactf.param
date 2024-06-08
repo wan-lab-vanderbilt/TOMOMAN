@@ -1,0 +1,46 @@
+## tomoman_novactf
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+
+##### NovaCTF Parameters #####
+
+# Parallelization parameters
+n_cores = 10                        # Number of cores for parallel processing. Parallel processing is only for building stacks; tomogram reconstruction and binning is not parallelized.
+
+# Stack Parameters
+ali_dim = 4096,4096                 # Size of aligned stack. (Typically 4096,4096 for Falcon 4 and 4092,5760 for K3)
+erase_radius = none                 # Set to 'none' to skip. Radius (in pixels) for gold fiducial erasing. Requires a *_erase.fid file from IMOD.
+taper_pixels = 100                  # Taper edges of rotated image after generating aligned stack. Uses IMOD's mrctaper function.
+ali_stack_bin = 1                   # Binning factor of aligned stack prior to reconstruction. Set to 1 for no binning.
+
+
+# 3D CTF correction parameters
+process_stack = dose-filtered       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+correction_type = phaseflip         # Options are 'phaseflip' or 'multiplication'
+defocus_step = 20                   # Defocus step along tomogram thickness in nm
+
+# Tomogram Reconstruction Parameters
+radial = none                       # RADIAL parameter from the IMOD tilt function. Set to 'none' to skip.
+tomo_bin = 1,2,4,8                  # Output binning parameters.
+output_dir_prefix = novactf_        # Prefix of output directory, relative to root_dir. For example, if prefix is "novactf_" and tomo_bin is "1,2", then output directories are novactf_bin1/ and novactf_bin2/.
+
+# Additional Parameters
+recons_list = none                  # Full path to list of tomograms to be reconstructed; list is a plain-text file with a column of target tomo_num. Set to none to reconstruct all tomogmrams in
+force_novactf = 0                   # Force NovaCTF reconstruction. (1 = yes, 0 = no). If a recons_list is given, only those will be reconstructed. 
+
+# Fourier3D Parameters
+f3d_memlimit = 40000                # Memory limit for Fourier3D. Fourier3D is used to bin tomograms by Fourier cropping.
+
+# Refine center against motivelist
+motl_name = none                    # Input motivelist to refine center of mass
+motl_binning = 1                    # Binning of motivelist
+
+
+
+
+

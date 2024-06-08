@@ -1,0 +1,157 @@
+function tomolist = tm_cryocare_oe_recons(tomolist, p, cryocare, dep, write_list)
+%% tm_cryocare_oe_recons
+% A function for taking a tomolist and running batched reconstruction of
+% odd and even frame tilt series prior to cryoCARE training and denoising. 
+%
+% WW 06-2023
+
+
+%% Initialize
+disp([p.name,'Initializing reconstruction of odd and even frame tomograms for cryoCARE processing!!!1!']);
+
+% Number of stacks
+n_stacks = size(tomolist,1);
+
+% Check for recons_list
+if sg_check_param(cryocare,'recons_list')
+    recons_list = dlmread([p.root_dir,cryocare.recons_list]);
+else
+    recons_list = [];
+end
+
+% Check binnings
+cryocare.tomo_bin = sort(cryocare.tomo_bin);  % Resort to ensure order from lowest to highest binning
+if ~isempty(cryocare.ali_stack_bin)           % The ali_stack_bin should match the lowest output tomogram binning
+    if cryocare.tomo_bin(1) ~= cryocare.ali_stack_bin
+        error([p.name,'ACHTUNG!!! There is a mismatch between ali_stack_bin and lowest output tomogram binning!!!']);
+    end
+else
+    if cryocare.tomo_bin(1) ~= 1
+        error([p.name,'ACHTUNG!!! There is a mismatch between ali_stack_bin and lowest output tomogram binning!!!']);
+    end
+end
+        
+
+% Parse tomogram output directories
+n_binnings = numel(cryocare.tomo_bin);
+tomo_dir = cell(n_binnings,1);
+for i = 1:n_binnings
+    tomo_dir{i} = [p.root_dir,cryocare.output_dir_prefix,'bin',num2str(cryocare.tomo_bin(i)),'/'];
+    % Check if directories exist
+    if ~exist(tomo_dir{i},'dir')
+        mkdir(tomo_dir{i});
+    end    
+end
+
+
+
+%% Write directive file and preprocess for each tomogram
+
+for i = 1:n_stacks
+        
+    % Check processing
+    process = true;
+    if tomolist(i).skip
+        process = false;        
+    elseif tomolist(i).tomo_recons
+        if ~novactf.force_novactf
+            process = false;
+        end
+    end
+        
+    
+    % Check recons_list
+    if ~isempty(r
+        if ~any(recons_list == tomolist(i).tomo_num)
+            process = false;
+        end
+    end
+    
+    
+    % Reconstruct tomograms
+    if process        
+        disp([p.name,'Preparing scripts for odd and even tomogram reconstruction of ',tomolist(i).stack_name]);
+        
+
+        % Odd/even array
+        odd_even = {'odd','even'};
+        
+        % Loop through stacks
+        for j = 1:2
+            
+            % Check stack type
+            switch cryocare.process_stack
+                case 'unfiltered'
+                    stack_type = odd_even{j};
+                case 'dose-filtered'
+                    stack_type = ['df_',odd_even{j}];
+            end
+
+            % Reconstruct tomogram in IMOD
+            tm_imod_reconstruct_tomogram(tomolist(i),cryocare,stack_type,'cryocare/',cryocare.ali_stack_bin,tomo_dir{1},cryocare.gpu_id);
+            
+        end
+            
+        % Bin tomograms serially
+        if numel(cryocare.tomo_bin) > 1
+
+            % Odd/even suffix
+            oe_suffix = {'_ODD','_EVN'};
+            
+            % Open binning script
+            bscript_name = [tomolist(i).stack_dir,'cryocare/tomo_binning.sh'];
+            bscript = fopen(bscript_name,'w');
+            
+            % Write initial lines
+            fprintf(bscript,['#!/usr/bin/env bash \n\n','set -e \n','set -o nounset \n\n']);
+
+            for j = 2:numel(cryocare.tomo_bin)
+
+                % Parse through odd/even
+                for k = 1:2
+
+                    % Parse stack nnme
+                    tomo_name = [num2str(tomolist(i).tomo_num),oe_suffix{k},'.rec '];
+
+                    % Input tomogram name
+                    in_name = [tomo_dir{j-1},tomo_name];
+
+                    % Ouptut tomogram name
+                    out_name = [tomo_dir{j},tomo_name];
+
+                    % Bin factor
+                    bin_factor = cryocare.tomo_bin(j)/cryocare.tomo_bin(j-1);
+
+                    % Write script
+                    fprintf(bscript,['echo "TOMOMAN: Binning tomogram ',tomo_name,' by a factor of ',num2str(cryocare.tomo_bin(j)),' by Fourier cropping..."\n']);
+                    fprintf(bscript,[dep.fourier3d,' ',...
+                                     '-InputFile ',in_name,' ',...
+                                     '-OutputFile ',out_name,' ',...
+                                     '-BinFactor ',num2str(bin_factor),' ',...
+                                     '-MemoryLimit ',num2str(cryocare.f3d_memlimit),' ','\n\n']);
+                end
+
+            end
+            
+            % Close file
+            fclose(bscript);
+            
+            % Make executable
+            system(['chmod +x ',bscript_name]);
+            
+            % Run file
+            system(bscript_name);
+            
+        end
+                       
+
+    end 
+    
+    % Save tomolist
+    if write_list
+        save([p.root_dir,p.tomolist_name],'tomolist');
+
+    end
+end
+
+

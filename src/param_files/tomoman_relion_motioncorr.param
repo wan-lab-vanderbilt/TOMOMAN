@@ -1,0 +1,25 @@
+## tomoman_relion_motioncorr
+
+# Tomolist parameters
+root_dir = %root_directory                      # Root folder for dataset; stack directories will be generated here.
+tomolist_name = %tomolist_filename              # Relative to root_dir
+log_name = %tomoman_log_filename                # Relative to root_dir
+
+# Parallelization
+n_cores = 10                 # Number of CPU cores to use.
+
+# Align frames / generate stack
+force_realign = 0                # 1 = yes, 0 = no;
+image_size = 4096,4096           # Crops or expands to image_size. Useful to produce image dimensions with integer binning factors (e.g. K2)
+
+# Relion's motioncorr parameters
+input_format = eer           # 'tiff' or 'mrc' or 'eer'
+patch = 1,1                  # Number of patches to be used for patch based alignment, Default 0 0 corresponding full frame alignment.
+bin_factor = 1               # Binning factor for input stack.
+bfactor = 150                # B-Factor for alignment, default 150.
+save_OddEven = 0             # Save odd/even frame sums.
+
+# EER-specific parameters
+eer_dosefractions = 40       # Number of dose fractions. TOMOMAN will parse the number of frames from the .eer header and set the appropriate grouping size.
+eer_upsampling = 1           # EER upsampling (1 = 4K or 2 = 8K)
+

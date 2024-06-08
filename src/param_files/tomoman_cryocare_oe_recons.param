@@ -1,0 +1,38 @@
+## tomoman_cryocare_oe_recons
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+
+##### Reconstruction Parameters #####
+
+# Parallelization parameters
+n_cores = 10                        # Number of cores for parallel processing. Parallel processing is only for building stacks; tomogram reconstruction and binning is not parallelized.
+gpu_id = none                       # GPU ID's for IMOD Reconstruction. Set to 'none' for no GPUs.
+
+# Stack Parameters
+ali_dim = 3712,3712                 # Size of aligned stack. (Typically 4096,4096 for Falcon 4 and 4092,5760 for K3)
+erase_radius = none                 # Set to 'none' to skip. Radius (in pixels) for gold fiducial erasing. Requires a *_erase.fid file from IMOD.
+taper_pixels = 100                  # Taper edges of rotated image after generating aligned stack. Uses IMOD's mrctaper function.
+ali_stack_bin = 4                   # Binning factor of aligned stack prior to reconstruction. Set to 1 for no binning.
+process_stack = dose-filtered       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+
+# Tomogram Reconstruction Parameters
+radial = none                       # RADIAL parameter from the IMOD tilt function. Set to 'none' to skip.
+tomo_bin = 4,8                        # Final output binning parameters.
+output_dir_prefix = oddeven_        # Prefix of output directory, relative to root_dir. For example, if prefix is "novactf_" and tomo_bin is "1,2", then output directories are novactf_bin1/ and novactf_bin2/.
+
+# Additional Parameters
+recons_list = none                  # List of tomograms to be reconstructed; list is a plain-text file with a column of target tomo_num. Path is relative to root dir. Set to "none" to reconstruct all tomogmrams.
+
+# Fourier3D Parameters
+f3d_memlimit = 40000                # Memory limit for Fourier3D. Fourier3D is used to bin tomograms by Fourier cropping.
+
+
+
+
+
+

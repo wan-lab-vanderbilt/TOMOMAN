@@ -1,0 +1,47 @@
+## tomoman_motioncor2
+
+
+# Tomolist parameters
+root_dir = %root_directory                  # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename          # Relative to root_dir
+log_name = %tomoman_log_filename            # Relative to root_dir
+
+
+# TOMOMAN parameters
+force_realign = 0                  # Force realignment. 1 = yes, 0 = no
+image_size = 5760,4092             # Crops or expands to image_size. Useful to produce image dimensions with integer binning factors (e.g. K2)
+
+
+# MotionCor2 parameters
+input_format = mrc                 # "tiff" or "mrc" or "eer"
+dose_filter = 0                    # Dose filter using MotionCor2 (not recommended...)
+dose_filter_suffix = dose-filt     # Suffix to add to dose-filtered stack. 
+ArcDir = none                      # Path of the archive folder
+MaskCent = 0,0                     # Center of subarea that will be used for alignement. Default is 0,0 corresponding to the frame center.
+MaskSize = 1,1                     # The size of subarea that will be used for alignment, default 1.0 1.0 corresponding full size.
+Patch = 3,3                        # Number of patches to be used for patch based alignment, default 0 0 corresponding full frame alignment.
+Iter = 7                           # Maximum iterations for iterative alignment, default 5 iterations.
+Tol = 0.5                          # Tolerance for iterative alignment, default 0.5 pixel.
+Bft = 100                          # B-Factor for alignment, default 100.
+FtBin = 1                          # Binning performed in Fourier space, default 1.0.
+Throw = 0                          # Throw initial number of frames, default is 0.
+Trunc = 0                          # Truncate last number of frames, default is 0.
+Group = none                       # Group every specified number of frames by adding them together. The alignment is then performed on the summed frames. By default, no grouping is performed.
+FmRef = -1                         # Specify which frame to be the reference to which all other frames are aligned. By default (-1) the the central frame is chosen. The central frame is at N/2 based upon zero indexing where N is the number of frames that will be summed, i.e., not including the frames thrown away.
+OutStack = 0                       # Write out motion corrected frame stack. Default 0.
+Align = 1                          # Generate aligned sum (1) or simple sum (0)
+Tilt = none                        # Specify the starting angle and the step angle of tilt series. They are required for dose weighting. If not given, dose weighting will be disabled.
+Mag = none                         # Correct anisotropic magnification by stretching image along the major axis, the axis where the lower magificantion is detected. Three inputs are needed including magnifications along major and minor axes and the angle of the major axis relative to the image x-axis in degree. By default no correction is performed.
+Crop = none                        # Crop the loaded frames to the given size. By default the original size is loaded.
+Gpu = 3                            # GPU IDs. Default 0. For multiple GPUs, separate IDs by space. For example, -Gpu 0 1 2 3 specifies 4 GPUs.
+
+# EER specific part
+EerSampling = 1                    # EER sampling for final render. Set to 1 for 4k, and 2 for 8k. 
+EerGrouping = 15                   # How many EER frames to group into a single dose fraction. REMEMBER, frames at the end of exposure that do not go into a whole fraction are discarded. 
+FmIntFile = none                   # Dose fractionation file. "Expert only" option. 
+
+
+# Odd/even stacks for noise2noise training
+SplitSum = 0                       # write odd/even stacks. 1 = true, 0 = false(default)
+
+

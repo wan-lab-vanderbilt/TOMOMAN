@@ -1,0 +1,37 @@
+## tomoman_import
+
+# Directory parameters
+root_dir = %root_directory                                   # Root folder for dataset; stack directories will be generated here.
+raw_stack_dir = raw_data_directory                           # Folder containing raw stacks; relative to root_dir.
+raw_frame_dir = frame_directory                              # Folder containing unsorted frames; relative to root_dir.
+
+# Tomolist 
+tomolist_name = %tomolist_filename               # Name of tomolist. Saved relative to root_dir.
+log_name = %tomoman_log_filename                 # Name of tomoman log file. Saved relative to root_dir
+
+# Filename parameters
+raw_stack_ext = none            # File extension of raw stacks. Set to 'none' to skip
+
+# Data collection parameters
+gainref = full_path_to_gain_ref     # For no gainref, set to 'none'
+defects_file = none                 # For no defects_file, set to 'none'
+rotate_gain = 0                     # Gain ref rotation
+flip_gain = 0                       # Gain ref flip; 0 = none, 1 = up/down, 2 = left/right
+os = windows                        # Operating system for data collection. Options are 'windows' and 'linux'. This is usually 'windows'.
+mirror_stack = none                 # Mirror images, MAKE SURE YOU KNOW YOUR STUFF!!;
+voltage = 300                       # Voltage used for data collection in kV. 
+
+
+# Override .mdoc values (set to none for no override)
+tilt_axis_angle = none    # Tilt axis angle in degrees
+dose_rate = none          # e/pixel/s
+pixelsize = none          # Pixel size in Angstroms
+target_defocus = none     # Target defocus in Microns
+
+# Sorting parameters (0 = false, 1 = true)
+ignore_raw_stacks = 1              # Generate tilt-series folder even if raw stack is missing
+ignore_missing_frames = 0          # Generate tilt-series folder even if frames are missing
+
+
+
+

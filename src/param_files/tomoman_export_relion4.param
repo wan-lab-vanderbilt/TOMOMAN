@@ -1,0 +1,15 @@
+## tomoman_export_relion4
+
+# Directory Parameters
+root_dir = %root_directory                         # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+# TOMOMAN parameters
+
+##### Export to RELION4 #####
+output_dir = /path/to/export/dir/                   # Path to Export/output dir.
+sg_motl = none                                      # Full path to sg motl. Make sure it's in unbinned pixels. 
+process_stack = dose-filtered                        # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+export_list = none                                  # List of tomograms to be Exported.
+

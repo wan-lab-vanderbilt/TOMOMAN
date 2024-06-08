@@ -1,0 +1,15 @@
+## tomoman_clean_stacks
+
+
+# Tomolist parameters
+root_dir = %root_directory                  # Root folder for dataset; stack directories will be generated here.
+tomolist_name = %tomolist_filename          # Relative to root_dir
+log_name = %tomoman_log_filename            # Relative to root_dir
+
+# Stack cleaning parameters
+clean_binning = 8       # Binning to open 3dmod with
+clean_append = none     # Append to name for cleaned stack. Setting to "none" overwrites old file.
+check_cleaning = 0      # Check that all stacks have been cleaned using stored bad tilts. This will disable interactive cleaning. 1 = yes, 0 = no.
+force_cleaning = 0      # Force cleaning for already cleaned stacks. 1 = yes, 0 = no
+
+

@@ -1,0 +1,33 @@
+function export_fields = tm_get_export_fields(task)
+%% tm_get_cryocare_fields
+% Return parameter fields for a given tomoman_cryoCARE task. 
+%
+% WW 06-2023
+
+%% Get fields
+
+switch task
+    case 'export_relion4'
+        export_fields = {'output_dir','num';...
+                           'sg_wedgelist','num';...
+                           'sg_motl','num';...
+                           'sg_motl_bin','num';...
+                           'process_stack','str';...
+                           };
+        
+    case 'export_warp'
+        export_fields = {'output_dir','num';...
+                           'sg_wedgelist','num';...
+                           'sg_motl','num';...
+                           'sg_motl_bin','num';...
+                           'process_stack','str';...
+                           'export_list'
+                           };
+        
+    case 'export_stopgap'
+        error('In construction!!!')
+end
+
+
+
+

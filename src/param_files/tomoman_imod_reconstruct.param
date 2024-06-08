@@ -1,0 +1,41 @@
+## tomoman_imod_reconstruct
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+# TOMOMAN parameters
+
+##### IMOD Parameters #####
+
+# Parallelization parameters
+n_cores = 10                        # Number of cores for parallel processing. Parallel processing is only for building stacks; tomogram reconstruction and binning is not parallelized.
+
+# Stack Parameters
+process_stack = dose-filtered       # Stack for processing. Either 'unfiltered' or 'dose-filtered' or 'odd' or 'even'
+ali_dim = 4096,4096                 # Size of aligned stack. (Typically 4096,4096 for Falcon 4 and 4092,5760 for K3)
+erase_radius = none                 # Set to 'none' to skip. Radius (in pixels) for gold fiducial erasing. Requires a *_erase.fid file from IMOD.
+taper_pixels = 100                  # Taper edges of rotated image after generating aligned stack. Uses IMOD's mrctaper function.
+ali_stack_bin = 4                   # Binning factor of aligned stack prior to reconstruction. Set to 1 for no binning.
+
+# CTF correction parameters
+correction_type = phaseflip         # Options are 'phaseflip' or 'uncorrected'
+defocus_step = 20                  # Defocus step along tomogram thickness in nm
+
+# Tomogram Reconstruction Parameters
+fakesirtiter = 15;                  # fake SIRT iterations for better contrast!
+radial = none                       # RADIAL parameter from the IMOD tilt function. Set to 'none' to skip.
+tomo_bin = 4,8                  # Output binning parameters.
+output_dir_prefix = uncorrected_sirt15_     # Prefix of output directory, relative to root_dir. For example, if prefix is "novactf_" and tomo_bin is "1,2", then output directories are novactf_bin1/ and novactf_bin2/.
+
+# Additional Parameters
+recons_list = archive_list_4empiar.txt                  # Full path to list of tomograms to be reconstructed; list is a plain-text file with a column of target tomo_num. Set to none to reconstruct all tomogmrams in
+force_imod = 0                      # 1 = yes, 0 = no
+gpu_id = 3                             # ID of GPU to use for processing
+
+# Fourier3D Parameters
+f3d_memlimit = 40000                # Memory limit for Fourier3D. Fourier3D is used to bin tomograms by Fourier cropping.
+
+
+

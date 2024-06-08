@@ -1,0 +1,31 @@
+## tomoman_aretomo
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+# AreTomo Files and Folders
+out_dir = bin8_aretomo/                             # Output directory for reconstructed tomograms, relative to root_dir
+process_stack = dose-filtered                       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+aretomo_list = none                                 # List of per-tilt series parameters. By column, tomo_num, AlignZ, and VolZ; AlignZ and VolZ are optional, but if used, must have all entries. Tomograms in the tomolist but not in the aretomo_list will not be processed. Set to 'none' for no list. 
+ovZ = none                                          # Override thickness in IMOD-format tilt.com. TOMOMAN will normally take the VolZ value, but this allows for overriding this. Units are in bin1 pixels. Set to 'none' for no override. 
+
+# AreTomo Parameters 
+InBin = 4                       # TOMOMAN parameter for binning of input tilt series  
+AlignZ = 800                    # Approximate thickness of specimen in unbinned pixels
+VolZ = 1200                     # Thickness for tomogram reconstruction in unbinned pixels
+OutBin = 8                      # Output binning (Total binning, independent of the InBin value)
+TiltCor = 1                     # Correct for tilt angle offset. See AreTomo manual for details
+FlipVol = 1                     # Flip into standard xy-plane
+FlipInt = 0                     # Flip output intensities
+Sart = none                     # Parameters for SART reconstruction. Default parameters are 20,5. Set to none to skip.
+Wbp = 1                         # WBP reconstruction. (1 = yes, 0 = no)
+Roi = none                      # ROI for focused alignment. Set to none to skip.
+Patch = none                    # Parameters for patch-based local motion correction. Set to none to skip.
+OutImod = 1                     # Write out IMOD formatted files for Relion4 inputs. (1 = yes, 0 = no)
+OutXF = 1                       # Write out IMOD formatted .xf file. (1 = yes, 0 = no)
+DarkTol = 0.001                 # Tolerance for detecting and removing dark images. Default = 0.70.
+Gpu = 3                         # ID of GPU to use for processing
+force_align = 0                 # Force AreTomo to re-align stacks. (1 = yes, 0 = no)
+

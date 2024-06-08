@@ -1,0 +1,15 @@
+cp = cp                                                       # Linux copy
+mv = mv                                                       # Linux move
+ln = ln                                                       # Linux link
+relionmc = relion_run_motioncorr                              # Relion MotionCorr2
+relion_import = relion_import                                 # Relion Import
+motioncor2 = motioncor2                                       # MotionCor2
+imod_3dmod = 3dmod                                            # IMOD 3dmod
+newstack = newstack                                           # IMOD newstack
+clip = clip                                                   # IMOD clip
+aretomo = AreTomo                                             # AreTomo
+ctffind4 = ctffind                                           # CTFFIND4
+etomo = etomo                                                 # IMOD etomo; assume presence of etomo inclues all other functions
+novactf = novaCTF                                             # NovaCTF
+fourier3d = Fourier3D                                         # Fourier3D         
+mpiexec = mpiexec                                             # Command to run MPI

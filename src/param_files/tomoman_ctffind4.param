@@ -1,0 +1,38 @@
+## tomoman_ctffind4
+
+# Directory Parameters
+root_dir = %root_directory                  # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename          # Relative to root_dir
+log_name = %tomoman_log_filename            # Relative to root_dir
+
+# TOMOMAN CTFFIND4 Parameters
+force_ctffind = 1                   # 1 = yes, 0 = no
+process_stack = unfiltered          # Options are 'unfiltered' and 'dose-filtered'.
+def_range = 0.6                     # Range of defocus to search in microns. TOMOMAN will use this and the "target_defocus" values in the tomolist to calculate the CTFFIND4 min_res and max_res parameters.
+
+# CTFFIND parameters
+ps_size = 512                       # Size of power-spectrum in pixels
+cs = 2.7                            # Spherical aberration
+famp = 0.07                         # Ampltidue contrast
+min_res = 35                        # Minimum resolution to fit
+max_res = 5                         # Maximum resolution to fit
+def_step = 0.01                     # Defocus search step in microns. Default is 0.01.
+known_astig = 0                     # Do you know what astigmatism is present? (0 = no, 1 = yes). Default is 0
+slower = 0                          # Slower, more exhaustive search (0 = no, 1 = yes). Default is 0
+astig = 0                           # Known astigmatism.
+astig_angle = 0                     # Known astigmatism angle.
+rest_astig = 1                      # Restrict astigmatism (0 = no, 1 = yes). Default = 1
+exp_astig = 200                     # Expected (tolerated) astigmatism. Default is 200.
+det_pshift = 0                      # Determine phase shift (0 = no, 1 = yes).
+pshift_min = 0                      # Minimum phase shift (rad). Default = 0.0.
+pshift_max = 3.15                   # Maximum phase shift (rad). Default = 3.15.
+pshift_step = 0.1                   # Phase shift search step. Default = 0.1.
+expert = 1                          # Do you want to set expert options? (0 = no, 1 = yes) Default is 0
+resample = 1                        # Resample micrograph if pixel size too small? (0 = no, 1 = yes)
+known_defocus = 0                   # Do you already know the defocus?  (0 = no, 1 = yes) Default is 0 
+known_defocus_1 = 0.0               # Known defocus 1 .   Default is 0
+known_defocus_2 = 0.0               # Known defocus 2 .   Default is 0
+known_defocus_astig = 0             # Known defocus astigmatism.   Default is 0
+known_defocus_pshift = 0            # Known defocus phase shift in radians.   Default is 0
+nthreads = 10                       # Desired number of parallel threads. 
+

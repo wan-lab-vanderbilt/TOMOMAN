@@ -1,0 +1,12 @@
+## tomoman_archive
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+# Archive Parameters 
+process_stack = dose-filtered                       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+archive_dir = /path/to/archiva/dir                         # Output directory for archival, absolute
+raw_data_dir = /path/to/raw/data           # Full path to the Directory where the raw data imported into the TOMOMAN projet resides.
+archive_list = none                               # Full path to list of tomograms to be archived; list is a plain-text file with a column of target tomo_num. Set to none to archive all tomograms 
