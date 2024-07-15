@@ -114,12 +114,15 @@ for i = 1:n_stacks
                                  '-OutputFile ',out_name,' ',...
                                  '-BinFactor ',num2str(bin_factor),' ',...
                                  '-MemoryLimit ',num2str(imod.f3d_memlimit),' ','\n\n']);
+                             
+                             
+                             
             end
-
-        end
             
-        % Close file
-        fclose(bscript);
+            % Close file
+            fclose(bscript);
+        end
+                    
 
         % Make executable
         system(['chmod +x ',bscript_name]);

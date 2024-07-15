@@ -6,7 +6,7 @@ function par = tomoman_aretomo(root_dir,paramfilename,par)
 %
 % WW 06-2022
 
-%%%% DEBUG
+% %%%% DEBUG
 % root_dir = pwd;
 % paramfilename = 'tomoman_aretomo.param';
 

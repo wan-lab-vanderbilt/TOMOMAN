@@ -29,3 +29,9 @@ DarkTol = 0.001                 # Tolerance for detecting and removing dark imag
 Gpu = 3                         # ID of GPU to use for processing
 force_align = 0                 # Force AreTomo to re-align stacks. (1 = yes, 0 = no)
 
+# Aligned Stack Output
+write_ali_stack = 0                     # Write out an aligned stack using AreTomo parameters
+ali_stack_binning = 8                   # Binning of output aligned stack
+ali_stack_dir = bin8_aretomo_ali/       # Output directory for aligned stacks, relative to root_dir
+
+

@@ -184,20 +184,19 @@ for i = 1:n_stacks
         if are.OutImod
             
             % Directory of -OutImod outputs
-%             imod_dir = [tomolist(i).stack_dir,'AreTomo/',name,'_bin',num2str(are.OutBin),'/'];
-            imod_dir = [tomolist(i).stack_dir,'AreTomo/'];
+            aretomo_dir = [tomolist(i).stack_dir,'AreTomo/'];
             
             % Rotate volume
 %             fprintf(fid,[dep.clip,' flipyz ',imod_dir,'tomogram.mrc ',imod_dir,'tomogram.mrc','\n\n']);
 %             fprintf(fid,[dep.clip,' rotx ',imod_dir,'tomogram.mrc ',imod_dir,'tomogram.mrc','\n\n']);   % For Aretomo > ver 1
-            fprintf(fid,[dep.clip,' rotx ',imod_dir,vol_name,' ',imod_dir,vol_name,'\n\n']);   % For Aretomo > ver 1
+            fprintf(fid,[dep.clip,' rotx ',aretomo_dir,vol_name,' ',aretomo_dir,vol_name,'\n\n']);   % For Aretomo > ver 1
 
             % Cleanup
             fprintf(fid,['rm -f ',tomolist(i).stack_dir,'AreTomo/*~ \n\n']);
-            fprintf(fid,['rm -f ',imod_dir,'*~ \n\n']);
+            fprintf(fid,['rm -f ',aretomo_dir,'*~ \n\n']);
 
             % Move final tomogram
-            fprintf(fid,['mv ',imod_dir,vol_name,' ',p.root_dir,are.out_dir,vol_name]);
+            fprintf(fid,['mv ',aretomo_dir,vol_name,' ',p.root_dir,are.out_dir,vol_name]);
             
         else
             
@@ -210,7 +209,7 @@ for i = 1:n_stacks
             % Move final tomogram
             fprintf(fid,['mv ',OutMrc_name,' ',p.root_dir,are.out_dir]);
             
-        end
+        end        
         
         fclose(fid);
         
@@ -221,6 +220,45 @@ for i = 1:n_stacks
         % Convert outputs to IMOD format
         tm_aretomo2imod(tomolist(i),are,volZ);
         
+        
+        % Check for aligned stack output
+        if are.write_ali_stack
+            
+            % Open aligned stack script
+            script_name = [tomolist(i).stack_dir,'AreTomo/run_ali_stack.sh'];
+            fid = fopen(script_name,'w');
+            fprintf(fid,['#!/usr/bin/env bash \n\n','set -e \n','set -o nounset \n\n']);
+           
+            % Check output directory
+            if ~exist([p.root_dir,are.ali_stack_dir],'dir')
+                mkdir([p.root_dir,are.ali_stack_dir])
+            end
+
+            % Output aligned stack name
+            ali_name = [name,'_bin',num2str(are.ali_stack_binning),'.ali'];
+            
+            % Parse xf file name
+            xf_name = [tomolist(i).stack_dir,'AreTomo/',name,'.xf'];
+            
+            % Read tilt.com
+            tiltcom_name = [tomolist(i).stack_dir,'AreTomo/','tilt.com'];
+            tiltcom = sg_read_IMOD_tiltcom(tiltcom_name);
+            
+            % Write newstack lines
+            fprintf(fid,['# Generate aligned stack with Newstack','\n']);
+            fprintf(fid,[dep.newstack,' -InputFile ' , tomolist(i).stack_dir,stack_name,...
+                                      ' -OutputFile ', p.root_dir, are.ali_stack_dir, ali_name,...
+                                      ' -xform ', xf_name,...
+                                      ' -ShrinkByFactor ', num2str(are.ali_stack_binning),...
+                                      ' -si ',num2str(round_to_even(tiltcom.FULLIMAGE(1)/are.ali_stack_binning)),',',num2str(round_to_even(tiltcom.FULLIMAGE(2)/are.ali_stack_binning)),'\n\n']);
+                                     
+            fclose(fid);
+            
+            % Run script
+            system(['chmod +x ',script_name]);
+            system(script_name);
+
+        end
         
         % Update tomolist
         tomolist(i).stack_aligned = true;
