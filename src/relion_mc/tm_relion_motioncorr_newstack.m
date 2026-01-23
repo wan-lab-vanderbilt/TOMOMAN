@@ -10,32 +10,49 @@ function tomolist = tm_relion_motioncorr_newstack(tomolist,p,a,relionmc,dep,writ
 % Number of stacks in tomolist
 n_stacks = size(tomolist,1);
 
+% Check for subset_list
+if sg_check_param(a,'subset_list')
+    subset_list = dlmread([p.root_dir,a.subset_list]);
+else
+    subset_list = [];
+end
+
+
 for i = 1:n_stacks
+    
+    % Parse tomogram string
+    tomo_str = strrep(tomolist(i).mdoc_name, '.mdoc', '');
+    tomo_str = strrep(tomo_str,'.mrc','');
     
     % Check to see if stack should be processed
     process = true;
     if tomolist(i).skip == true
         process = false;
+        disp([p.name,tomo_str,' set to skip... Moving on to next stack...']);
     else
         if tomolist(i).frames_aligned && ~a.force_realign
             process = false;
+            disp([p.name,tomo_str,' has already been motion corrected... Moving on to next stack...']);
         end
             
     end
 
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
+            process = false;
+            disp([p.name,tomo_str,' is not in the subset_list... Moving on to next stack...']);
+        end
+    end
+    
 
     % Continue loop if not processing
     if ~process
         continue
     end
-    
-    
-     
-        
-    % Parse tomogram string
-    tomo_str = strrep(tomolist(i).mdoc_name, '.mdoc', '');
-    tomo_str = strrep(tomo_str,'.mrc','');
     disp([p.name,'Preparing to run Relion MotionCorr on stack: ',tomo_str]);
+    
+    
 
     % Number of tilts
     n_tilts = numel(tomolist(i).collected_tilts);
@@ -63,7 +80,7 @@ for i = 1:n_stacks
 
 
     % Run Relion MotionCor2
-    disp([p.name,'Running the Relion implementation of MotionCorr2 on ',relionmc.input_format,' stack ',tomo_str]);
+    disp([p.name,'Running the Relion implementation of MotionCorr on ',relionmc.input_format,' stack ',tomo_str]);
 
     tm_relion_motioncorr_batch_wrapper(p,input_names, ali_names, tomolist(i), relionmc,relionmc_dir,dep,par);
 
@@ -90,7 +107,7 @@ for i = 1:n_stacks
     
     %%%%% Assemble Odd/Even Stacks %%%%%
     % Generate odd/even stacks
-    if relionmc.save_OddEven == 1
+    if sg_check_param(relionmc,'save_OddEven')
         disp([p.name,'Found Odd Even sums for ',tomo_str,'... Generating new stacks!!!']);        
 
         % Name of odd/even stacks
@@ -118,16 +135,16 @@ for i = 1:n_stacks
     % Update tomolist
     tomolist(i).image_size = a.image_size;
     tomolist(i).frames_aligned = true;
-    tomolist(i).frame_alignment_algorithm = 'RelionMotionCor';        
+    tomolist(i).frame_alignment_algorithm = 'RelionMotionCorr';        
     tomolist(i).stack_name = stack_name;
 
     % Save tomolist
     if write_list
-        save([p.root_dir,p.tomolist_name],'tomolist');
+        tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     end
         
         
-    disp([p.name,'TOMOMAN: Relion MotionCorr2 on ',stack_name,' complete!!!1!']);
+    disp([p.name,'TOMOMAN: Relion MotionCorr on ',stack_name,' complete!!!1!']);
 end
 
         

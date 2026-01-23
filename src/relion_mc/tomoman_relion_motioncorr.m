@@ -88,7 +88,7 @@ if par_proc
     disp([p.name,'Parallel processing enabled...']);
     
     % Split tomolist
-    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par);
+    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par,'relion_motioncorr',relionmc);
     if isempty(tomolist)
         return
     end
@@ -112,7 +112,7 @@ for t = 1:n_tomos
     tomolist(t) = tm_relion_motioncorr_newstack(tomolist(t),p,a,relionmc,dep,write_list,par);
     
     % Write tomolist
-    save([p.root_dir,p.tomolist_name],'tomolist');
+    tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
 
     
     

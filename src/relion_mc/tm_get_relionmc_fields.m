@@ -17,7 +17,9 @@ rmc_fields = {'n_cores','num';...             % Number of parallel processing co
 
 
 a_fields = {'force_realign','boo';...         % Force realignment of stack
-            'image_size','num'};            % Output stack prefix
+            'image_size','num';...
+            'subset_list','str';...                % List containing tomo_num values for processing.
+            };            % Output stack prefix
             
         
 end
