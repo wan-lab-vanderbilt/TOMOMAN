@@ -7,6 +7,6 @@ log_name = %tomoman_log_filename                    # Relative to root_dir
 
 # Archive Parameters 
 process_stack = dose-filtered                       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
-archive_dir = /path/to/archiva/dir                         # Output directory for archival, absolute
-raw_data_dir = /path/to/raw/data           # Full path to the Directory where the raw data imported into the TOMOMAN projet resides.
-archive_list = none                               # Full path to list of tomograms to be archived; list is a plain-text file with a column of target tomo_num. Set to none to archive all tomograms 
+archive_dir = /path/to/archiva/dir                  # Full path to directory to generate archive
+raw_data_dir = /path/to/raw/data                    # Full path to the directory where the raw data imported into the TOMOMAN projet resides.
+subset_list = none                                  # List containing tomo_num values for archiving. Set to 'none' to skip.

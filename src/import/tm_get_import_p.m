@@ -11,7 +11,7 @@ p_fields = {'root_dir', 'str';...               % Root folder for dataset; stack
             'raw_frame_dir', 'str';...          % Folder containing unsorted frames (It is recommended to use links)
             'tomolist_name', 'str';...          % Relative to root_dir
             'log_name', 'str';...               % Relative to root_dir
-%             'prefix', 'str';...                 % Beginning of stack/mdoc names (e.g. stackname is [prefix][tomonum].[raw_stack_ext])
+            'prefix', 'str';...                 % Beginning of stack/mdoc names (e.g. stackname is [prefix][tomonum].[raw_stack_ext])
             'raw_stack_ext', 'str';...          % File extension of raw stacks
             'if_eer', 'boo';...                 % ! for EER, 0 for MRC
             'gainref','str';...                 % For no gainref, set to 'none, set to 'AUTO' if you are lazy!

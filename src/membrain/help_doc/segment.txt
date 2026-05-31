@@ -1,0 +1,41 @@
+Usage: membrain segment [OPTIONS]                                                                                                                                 
+                                                                                                                                                                   
+ Segment tomograms using a trained model.                                                                                                                          
+                                                                                                                                                                   
+ Example                                                                                                                                                           
+ -------                                                                                                                                                           
+ membrain segment --tomogram-path <path-to-your-tomo>                                                                                                              
+ --ckpt-path <path-to-your-model>                                                                                                                                  
+                                                                                                                                                                   
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ *  --tomogram-path                                                    TEXT     Path to the tomogram to be segmented [default: None] [required]                  │
+│ *  --ckpt-path                                                        TEXT     Path to the pre-trained model checkpoint that should be used. [default: None]    │
+│                                                                                [required]                                                                       │
+│    --out-folder                                                       TEXT     Path to the folder where segmentations should be stored.                         │
+│                                                                                [default: ./predictions]                                                         │
+│    --rescale-patches               --no-rescale-patches                        Should patches be rescaled on-the-fly during inference?                          │
+│                                                                                [default: no-rescale-patches]                                                    │
+│    --in-pixel-size                                                    FLOAT    Pixel size of the input tomogram in Angstrom.             (default: 10 Angstrom) │
+│                                                                                [default: None]                                                                  │
+│    --out-pixel-size                                                   FLOAT    Pixel size of the output segmentation in Angstrom.             (default: 10      │
+│                                                                                Angstrom; should normally stay at 10 Angstrom)                                   │
+│                                                                                [default: 10.0]                                                                  │
+│    --store-probabilities           --no-store-probabilities                    Should probability maps be output in addition to segmentations?                  │
+│                                                                                [default: no-store-probabilities]                                                │
+│    --store-connected-components    --no-store-connected-components             Should connected components of the segmentation be computed?                     │
+│                                                                                [default: no-store-connected-components]                                         │
+│    --connected-component-thres                                        INTEGER  Threshold for connected components. Components smaller than this will            │
+│                                                                                be removed from the segmentation.                                                │
+│                                                                                [default: None]                                                                  │
+│    --test-time-augmentation        --no-test-time-augmentation                 Use 8-fold test time augmentation (TTA)? TTA improves segmentation               │
+│                                                                                quality slightly, but also increases runtime.                                    │
+│                                                                                [default: test-time-augmentation]                                                │
+│    --segmentation-threshold                                           FLOAT    Threshold for the membrane segmentation. Only voxels with a             membrane │
+│                                                                                score higher than this threshold will be segmented.                 (default:    │
+│                                                                                0.0)                                                                             │
+│                                                                                [default: 0.0]                                                                   │
+│    --sliding-window-size                                              INTEGER  Sliding window size used for inference. Smaller values than 160                  │
+│                                                                                consume less GPU, but also lead to worse segmentation results!                   │
+│                                                                                [default: 160]                                                                   │
+│    --help                                                                      Show this message and exit.                                                      │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯

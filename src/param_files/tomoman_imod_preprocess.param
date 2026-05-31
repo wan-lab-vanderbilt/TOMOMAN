@@ -9,6 +9,7 @@ log_name = %tomoman_log_filename                    # Relative to root_dir
 # TOMOMAN parameters
 force_imod = 0                      # 1 = yes, 0 = no
 process_stack = dose-filtered       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+subset_list = none                  # List containing tomo_num values for processing.
 
 # Copytomocoms
 copytomocoms = 1                    # Run copytomocoms

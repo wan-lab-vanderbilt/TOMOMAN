@@ -1,0 +1,46 @@
+NAME
+    isonet.py extract - Extract subtomograms
+
+SYNOPSIS
+    isonet.py extract STAR_FILE <flags>
+
+DESCRIPTION
+    isonet.py extract star_file [--subtomo_folder] [--subtomo_star] [--cube_size] [--use_deconv_tomo] [--tomo_idx]
+
+POSITIONAL ARGUMENTS
+    STAR_FILE
+        Type: str
+        tomogram star file
+
+FLAGS
+    --use_deconv_tomo=USE_DECONV_TOMO
+        Type: bool
+        Default: True
+        (True) If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.
+    --subtomo_folder=SUBTOMO_FOLDER
+        Type: str
+        Default: 'subtomo'
+        (subtomo) folder for output subtomograms.
+    --subtomo_star=SUBTOMO_STAR
+        Type: str
+        Default: 'subtomo.star'
+        (subtomo.star) star file for output subtomograms.
+    --cube_size=CUBE_SIZE
+        Type: int
+        Default: 64
+        (64) Size of cubes for training, should be divisible by 8, eg. 32, 64. The actual sizes of extracted subtomograms are 1.5 times of this value.
+    --crop_size=CROP_SIZE
+        Type: Optional[int]
+        Default: None
+        (None) The size of subtomogram, should be larger then the cube_size The default value is 16+cube_size.
+    --log_level=LOG_LEVEL
+        Type: str
+        Default: 'info'
+        ("info") level of the output, either "info" or "debug"
+    --tomo_idx=TOMO_IDX
+        Type: Optional[]
+        Default: None
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
+

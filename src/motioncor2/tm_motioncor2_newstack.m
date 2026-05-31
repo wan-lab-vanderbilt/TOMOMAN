@@ -7,34 +7,53 @@ function tomolist = tm_motioncor2_newstack(tomolist,p,dep,mc2,write_list)
 %
 % WW 02-2022
 
+
 %% Generate new stacks
 
 % Number of stacks in tomolist
 n_stacks = size(tomolist,1);
 
+% Check for subset_list
+if sg_check_param(mc2,'subset_list')
+    subset_list = dlmread([p.root_dir,mc2.subset_list]);
+else
+    subset_list = [];
+end
+
+
 for i = 1:n_stacks
+    
+    % Parse tomogram string
+    tomo_str = strrep(tomolist(i).mdoc_name, '.mdoc', '');
+    tomo_str = strrep(tomo_str,'.mrc','');
     
     % Check to see if stack should be processed
     process = true;
     if tomolist(i).skip == true
         process = false;
+        disp([p.name,tomo_str,' set to skip... Moving on to next stack...']);
     else
         if tomolist(i).frames_aligned && ~mc2.force_realign
             process = false;
+            disp([p.name,tomo_str,' has already been motion corrected... Moving on to next stack...']);
         end
             
+    end
+    
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
+            process = false;
+            disp([p.name,tomo_str,' is not in the subset_list... Moving on to next stack...']);
+        end
     end
     
     
     % Process stack
     if process        
+        disp([p.name,'Preparing to run MotionCor2 on stack: ',tomo_str]);
         
-        %%%%% Parse Inputs %%%%%
-        
-        % Parse tomogram string
-        tomo_str = strrep(tomolist(i).mdoc_name, '.mdoc', '');
-        tomo_str = strrep(tomo_str,'.mrc','');
-        disp([p.name,'Preparing to run Relion MotionCorr on stack: ',tomo_str]);
+        %%%%% Parse Inputs %%%%%                
         
         % Number of tilts
         n_tilts = numel(tomolist(i).collected_tilts);
@@ -145,7 +164,7 @@ for i = 1:n_stacks
         
         % Save tomolist
         if write_list
-            save([p.root_dir,p.tomolist_name],'tomolist');
+            tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
         end
         
    

@@ -32,18 +32,18 @@ else
     disp([p.name,'',num2str(n_stacks),' .mdoc files found!']);
 end
 
-% % Get indices for stack number
-% sn_s = numel(p.prefix)+1;
-% sn_e = 5;
-% sn_e = numel(p.raw_stack_ext)+5;
+% Parse size of prefix
+if sg_check_param(p,'prefix')
+    prefix_size = numel(p.prefix);
+end
 
 % Initilize mdoc parsing fields
 if isempty(ov.target_defocus)
-    mdoc_fields = {'TiltAxisAngle','TiltAngle','ExposureDose','ExposureTime','TargetDefocus','SubFramePath','NumSubFrames','PixelSpacing'};
-    mdoc_field_types = {'num','num','num','num','num','str','num','num'};
+    mdoc_fields = {'TiltAxisAngle','TiltAngle','ExposureDose','ExposureTime','TargetDefocus','SubFramePath','NumSubFrames','PixelSpacing','DateTime'};
+    mdoc_field_types = {'num','num','num','num','num','str','num','num','datetime'};
 else
-    mdoc_fields = {'TiltAxisAngle','TiltAngle','ExposureDose','ExposureTime','SubFramePath','NumSubFrames','PixelSpacing'};
-    mdoc_field_types = {'num','num','num','num','str','num','num'};
+    mdoc_fields = {'TiltAxisAngle','TiltAngle','ExposureDose','ExposureTime','SubFramePath','NumSubFrames','PixelSpacing','DateTime'};
+    mdoc_field_types = {'num','num','num','num','str','num','num','datetime'};
 end    
 
 
@@ -57,8 +57,7 @@ for i = 1:n_stacks
     % Store root_dir
     temp_tomolist.root_dir = p.root_dir;
         
-%     % Parse stack number
-%     [temp_tomolist.tomo_num, tomo_name, digits] = tm_parse_tomo_num(mdoc_dir(i).name,p.prefix);
+
 
 %     % Tilt-series root name
 %     tomo_name = mdoc_dir(i).name(1:end-sn_e);   
@@ -88,6 +87,10 @@ for i = 1:n_stacks
     mdoc_param = tm_parse_mdoc([p.root_dir,p.raw_stack_dir,mdoc_dir(i).name],mdoc_fields,mdoc_field_types);
     n_tilts = numel(mdoc_param);
     
+    % Parse indices to sort by collection time
+    [~,t_idx] = sort([mdoc_param.DateTime]);
+
+    
     % Check for raw stack
    if exist([p.raw_stack_dir,name,p.raw_stack_ext],'file')
         % Same basename without ext
@@ -113,9 +116,9 @@ for i = 1:n_stacks
         % Parse framenames from .mdoc
         switch p.os
             case 'windows'
-                [~,fname,ext] = tm_fileparts_windows(mdoc_param(j).SubFramePath);
+                [~,fname,ext] = tm_fileparts_windows(mdoc_param(t_idx(j)).SubFramePath);
             case 'linux'
-                [~,fname,ext] = fileparts(mdoc_param(j).SubFramePath);
+                [~,fname,ext] = fileparts(mdoc_param(t_idx(j)).SubFramePath);
         end
         
         % Store frame name
@@ -157,13 +160,22 @@ for i = 1:n_stacks
         temp_tomolist.tilt_axis_angle = ov.tilt_axis_angle;
     end
         
-    % Write tilt angles
-    temp_tomolist.collected_tilts = [mdoc_param.TiltAngle]'; 
+    % Write tilt angles in order of collection
+    collected_tilts = [mdoc_param.TiltAngle]';
+    temp_tomolist.collected_tilts =  collected_tilts(t_idx');
     temp_tomolist.rawtlt = temp_tomolist.collected_tilts;
     
     % Store camera files
-    temp_tomolist.gainref = p.gainref;
-    temp_tomolist.defects_file = p.defects_file;
+    if sg_check_param(p,'gainref')
+        temp_tomolist.gainref = tm_check_absolute_path(p.root_dir,p.gainref);
+    else
+        temp_tomolist.gainref = [];
+    end
+    if sg_check_param(p,'defects_file')
+        temp_tomolist.defects_file = tm_check_absolute_path(p.root_dir,p.defects_file);
+    else
+        temp_tomolist.defects_file = [];
+    end
     temp_tomolist.rotate_gain = p.rotate_gain;
     temp_tomolist.flip_gain = p.flip_gain;
     
@@ -203,7 +215,8 @@ for i = 1:n_stacks
             temp_tomolist.target_defocus = mdoc_param(1).TargetDefocus;
         else
             warning([p.name,'ACHTUNG!!! ',raw_stack_name,' has varying target defocii!!!']);
-            temp_tomolist.target_defocus = [mdoc_param.TargetDefocus];
+            target_defocus = [mdoc_param.TargetDefocus];
+            temp_tomolist.target_defocus = target_defocus(t_idx');
         end
         
     else
@@ -249,15 +262,21 @@ for i = 1:n_stacks
     end        
 
     
-    % Append and save tomolist    
-    if sum(numel(tomolist)) >= 1        
-        temp_tomolist.tomo_num = max([tomolist.tomo_num]) + 1;
+    % Append and save tomolist   
+    if sg_check_param(p,'prefix')
+        % Parse stack number
+        temp_tomolist.tomo_num = str2double(name(prefix_size+1:end));
+        
     else
-        temp_tomolist.tomo_num = 1;
+        if sum(numel(tomolist)) >= 1        
+            temp_tomolist.tomo_num = max([tomolist.tomo_num]) + 1;
+        else
+            temp_tomolist.tomo_num = 1;
+        end
     end
     
     tomolist = cat(2,tomolist,temp_tomolist);
-    save([p.root_dir,p.tomolist_name],'tomolist');
+    tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     disp([p.name,'Stack ',num2str(i),' of ',num2str(n_stacks),' imported...']);
 end    
     

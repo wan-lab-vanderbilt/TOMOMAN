@@ -11,9 +11,9 @@ function tomolist = tm_novactf(tomolist, p, novactf, dep, write_list)
 % Number of stacks
 n_stacks = numel(tomolist);
 
-% Check for recons_list
-if ~isempty(novactf.recons_list)
-    recons_list = dlmread(novactf.recons_list);
+% Check for subset_list
+if ~isempty(novactf.subset_list)
+    subset_list = dlmread(novactf.subset_list);
 end
 
 % Check binnings
@@ -55,17 +55,25 @@ for i = 1:n_stacks
     process = true;
     if tomolist(i).skip
         process = false;        
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
     elseif tomolist(i).tomo_recons
         if ~novactf.force_novactf
             process = false;
+            disp([p.name,tomolist(i).stack_name,' has already been reconstructed... Moving on to next stack...']);
         end
     end
-        
     
-    % Check recons_list
-    if exist('recons_list','var')
-        if ~any(recons_list == tomolist(i).tomo_num)
+    % Check if aligned
+    if ~tm_check_if_aligned(tomolist(i))
+        process = false;
+        disp([p.name,tomolist(i).stack_name,' has not been aligned... Moving on to next stack...']);
+    end
+    
+    % Check subset_list
+    if exist('subset_list','var')
+        if ~any(subset_list == tomolist(i).tomo_num)
             process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
         end
     end
     
@@ -100,12 +108,34 @@ for i = 1:n_stacks
             case 'imod'
                 ali_dir = 'imod/';                
             otherwise
-                error([p.name,'ACHTUNG!!! ',tomolist(i).alignment_software,' is unsupported!!!']);
+                if startsWith(tomolist(i).alignment_software,'sg_refine_')
+                    ali_dir = [tomolist(i).alignment_software,'/'];
+                else
+                    error(['ACHTUNG !!! ',tomolist(i).alignment_software,' is an unsupported alignment_software type!!!']);
+                end
         end
         tiltcom_name = [tomolist(i).stack_dir,ali_dir,'tilt.com'];
         tlt_name = [ali_dir,name,'.tlt'];
-        xf_name = [ali_dir,name,'.xf'];
         efid_name = [ali_dir,name,'_erase.fid'];
+        
+        % Check for xf file bining
+        if novactf.ali_stack_bin > 1
+            % Read xf
+            xf = dlmread([tomolist(i).stack_dir,ali_dir,name,'.xf']);
+            
+            % Bin shifts
+            xf(:,5:6) = xf(:,5:6)./novactf.ali_stack_bin;
+            
+            % Parse name to novaCTF folder and save
+            xf_name = ['novaCTF/',name,'_bin',num2str(novactf.ali_stack_bin),'.xf'];
+            dlmwrite([tomolist(i).stack_dir,xf_name],xf,' ');
+            
+        else
+            
+            % Parse name from alignment folder
+            xf_name = [ali_dir,name,'.xf'];
+
+        end
         
         % Read tilt.com        
         tiltcom = tm_imod_parse_tiltcom(tiltcom_name);
@@ -128,7 +158,7 @@ for i = 1:n_stacks
         %%%%% PERFORM RECONSTRUCTION %%%%%
         
         % Generate script for tomogram reconstruction
-        tm_novactf_generate_tomogram_runscript(tomolist(i),novactf,dep,n_stacks,tlt_name,tiltcom,tomo_dir);
+        tm_novactf_generate_tomogram_runscript(tomolist(i),novactf,dep,tlt_name,tiltcom,tomo_dir);
                
         % Run novaCTF
         disp([p.name,'Running novaCTF on ',tomolist(i).stack_name,'...']);
@@ -148,7 +178,7 @@ for i = 1:n_stacks
         
         % Save tomolist
         if write_list
-            save([p.root_dir,p.tomolist_name],'tomolist');
+            tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     
         end
 

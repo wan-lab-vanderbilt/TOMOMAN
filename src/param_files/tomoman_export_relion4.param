@@ -11,5 +11,5 @@ log_name = %tomoman_log_filename                    # Relative to root_dir
 output_dir = /path/to/export/dir/                   # Path to Export/output dir.
 sg_motl = none                                      # Full path to sg motl. Make sure it's in unbinned pixels. 
 process_stack = dose-filtered                        # Stack for processing. Either 'unfiltered' or 'dose-filtered'
-export_list = none                                  # List of tomograms to be Exported.
+subset_list = none                                  # List of tomograms to be Exported.
 

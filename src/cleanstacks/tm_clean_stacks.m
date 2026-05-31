@@ -27,7 +27,12 @@ else
     par = [];
 end
 
-
+% Check for subset_list
+if sg_check_param(c,'subset_list')
+    subset_list = dlmread([p.root_dir,c.subset_list]);
+else
+    subset_list = [];
+end
 
 %% Clean stacks
 
@@ -47,13 +52,22 @@ for i = 1:n_stacks
     process = true;
     if tomolist(i).skip
         process = false;        
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
     elseif tomolist(i).clean_stack
         if ~c.force_cleaning && ~c.check_cleaning
             process = false;
+            disp([p.name,tomolist(i).stack_name,' has already been cleaned... Moving on to next stack...']);
         end        
     end
     
-
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
+            process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
+        end
+    end
+    
     
     % Process stack
     if process
@@ -85,7 +99,8 @@ for i = 1:n_stacks
                 
             
             case 'input'
-        
+                disp([p.name,'Loading ',tomolist(i).stack_name,' for cleaning...']);
+                
                 % Launch tilt-stack in 3dmod
                 system([dep.imod_3dmod,' -b ',num2str(c.clean_binning),' ',tomolist(i).stack_dir,tomolist(i).stack_name]);
 
@@ -186,9 +201,9 @@ for i = 1:n_stacks
 end
 
 
-% Write parallel completion file    
-if par_proc
-    system(['touch ',par.comm_dir,'tomoman_clean_stacks']);
-end
+% % Write parallel completion file    
+% if par_proc
+%     system(['touch ',par.comm_dir,'tomoman_clean_stacks']);
+% end
 
 

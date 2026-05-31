@@ -11,6 +11,7 @@ log_name = %tomoman_log_filename                 # Name of tomoman log file. Sav
 
 # Filename parameters
 raw_stack_ext = none            # File extension of raw stacks. Set to 'none' to skip
+prefix = none                   # Beginning of stack/mdoc names (e.g. stackname is [prefix][tomonum].[raw_stack_ext])
 
 # Data collection parameters
 gainref = full_path_to_gain_ref     # For no gainref, set to 'none'

@@ -1,0 +1,26 @@
+## tomoman_isonet2_prepare
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+##### IsoNet2 Directory Parameters #####
+isonet2_dir = isonet2/                  # Relative to root_dir
+tomo_subdir = wbp_tomo/                 # Relative to isonet2_dir. Tomograms are reconstructed into ODD, EVN, and AVG subfolders.
+
+#### Star Filename ####
+star_filename = isonet2.star            # Filename of output star file. This goes into the isonet2_dir.
+subset_list = none                      # List containing tomo_num values for processing.
+
+##### Reconstruction parameters #####
+reconstruct_tomos = 1               # Whether to reconstruct tomograms. 1 = yes, 0 = just create star file.
+erase_radius = none                 # Set to 'none' to skip. Radius (in pixels) for gold fiducial erasing. Requires a *_erase.fid file from IMOD.
+process_stack = dose-filtered       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+binning = 4                         # Binning factor of aligned stack prior to reconstruction. Set to 1 for no binning.
+
+# Additional Parameters
+number_subtomos = 3000              # Number of subtomograms to extract per tomogram. Default = 3000;
+gpuID = 3                           # ID of GPU to use for processing
+

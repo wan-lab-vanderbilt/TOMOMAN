@@ -1,0 +1,52 @@
+NAME
+    isonet.py deconv - CTF deconvolution for the tomograms.
+
+SYNOPSIS
+    isonet.py deconv STAR_FILE <flags>
+
+DESCRIPTION
+    isonet.py deconv star_file [--deconv_folder] [--snrfalloff] [--deconvstrength] [--highpassnyquist] [--overlap_rate] [--ncpu] [--tomo_idx]
+    This step is recommanded because it enhances low resolution information for a better contrast. No need to do deconvolution for phase plate data.
+
+POSITIONAL ARGUMENTS
+    STAR_FILE
+        Type: str
+        (None) Star file for tomograms.
+
+FLAGS
+    --deconv_folder=DECONV_FOLDER
+        Type: str
+        Default: './deconv'
+        (./deconv) Folder created to save deconvoluted tomograms.
+    --snrfalloff=SNRFALLOFF
+        Type: Optional[float]
+        Default: None
+        (1.0) SNR fall rate with the frequency. High values means losing more high frequency. If this value is not set, the program will look for the parameter in the star file. If this value is not set and not found in star file, the default value 1.0 will be used.
+    --deconvstrength=DECONVSTRENGTH
+        Type: Optional[float]
+        Default: None
+        (1.0) Strength of the deconvolution. If this value is not set, the program will look for the parameter in the star file. If this value is not set and not found in star file, the default value 1.0 will be used.
+    --highpassnyquist=HIGHPASSNYQUIST
+        Type: float
+        Default: 0.02
+        (0.02) Highpass filter for at very low frequency. We suggest to keep this default value.
+    --chunk_size=CHUNK_SIZE
+        Type: Optional[int]
+        Default: None
+        (None) When your computer has enough memory, please keep the chunk_size as the default value: None . Otherwise, you can let the program crop the tomogram into multiple chunks for multiprocessing and assembly them into one. The chunk_size defines the size of individual chunk. This option may induce artifacts along edges of chunks. When that happen, you may use larger overlap_rate.
+    --overlap_rate=OVERLAP_RATE
+        Type: float
+        Default: 0.25
+        (None) The overlapping rate for adjecent chunks.
+    --ncpu=NCPU
+        Type: int
+        Default: 4
+        (4) Number of cpus to use.
+    --tomo_idx=TOMO_IDX
+        Type: Optional[str]
+        Default: None
+        (None) If this value is set, process only the tomograms listed in this index. e.g. 1,2,4 or 5-10,15,16
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
+

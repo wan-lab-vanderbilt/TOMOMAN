@@ -1,4 +1,4 @@
-TOMOMAN 0.9
+TOMOMAN 0.9.1
 
 TOMOMAN, i.e. TOMOgram MANager, is a MATLAB package for managing 
 the various preprocessing steps for taking raw data to reconstructed 

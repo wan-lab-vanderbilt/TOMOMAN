@@ -1,0 +1,34 @@
+## tomoman_isonet_train
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+##### Input Parameters #####
+isonet_dir = isonet/                                # Relative to root_dir
+star_filename = tomograms.star                      # Name of star file to process. Should be located in isonet_dir
+subtomo_folder = subtomo/                           # Folder for output subtomograms.
+subtomo_star = subtomo.star                         # Star file for output subtomograms.
+result_dir = results/                               # The name of directory to save refined neural network models and subtomograms. This is within the isonet_dir
+
+##### Extraction Parameters #####
+run_extract = true                                  # Run subtomogram extraction
+use_deconv_tomo = true                              # (Default: true) If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.
+cube_size = 64                                      # (Default: 64) Size of cubes for training, should be divisible by 8, eg. 32, 64. The actual sizes of extracted subtomograms are 1.5 times of this value.
+crop_size = 80                                      # (Default: 80) The size of subtomogram, should be larger then the cube_size The default value is 16+cube_size.
+                           
+##### Training Parameters #####
+iterations = 30                                     # (Default: 30) Number of training iterations.
+noise_level = 0.05,0.1,0.15,0.2                     # (Default: 0.05,0.1,0.15,0.2) Level of noise STD(added noise)/STD(data) after the iteration defined in noise_start_iter.
+noise_start_iter = 11,16,21,26                      # (Default: 11,16,21,26) Iteration that start to add noise of corresponding noise level.
+remove_intermediate = true                          # Remove intermediate training files
+pretrained_model = none                             # A trained neural network model in ".h5" format to start with. File should be in the results_dir.
+continue_from = none                                # A Json file to continue from. That json file is generated at each iteration of refine. File should be in the results_dir. 
+
+##### Other Parameters #####
+n_cores = 5                                         # Number of CPUs for training
+gpuID  = 2,3                                        # The ID of gpu to be used during the training. e.g 0,1,2,3.
+subset_list = none                                  # List containing tomo_num values for processing.
+
+

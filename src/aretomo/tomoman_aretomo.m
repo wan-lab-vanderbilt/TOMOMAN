@@ -82,7 +82,7 @@ if par_proc
     disp([p.name,'Parallel processing enabled...']);
     
     % Split tomolist
-    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par);
+    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par,'aretomo',are);
     if isempty(tomolist)
         return
     end
@@ -107,7 +107,7 @@ while all(t <= n_tilts)
     
     
     % Save tomolist
-    save([p.root_dir,p.tomolist_name],'tomolist');
+    tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     
     t = t+b_size;
     

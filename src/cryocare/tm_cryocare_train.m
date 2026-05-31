@@ -42,14 +42,22 @@ for i = 1:n_stacks
     % Check processing
     process = true;
     if tomolist(i).skip
-        process = false;        
+        process = false; 
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
     end
             
-    % Check recons_list
+    % Check subset_list
     if ~isempty(subset_list)
         if ~any(subset_list == tomolist(i).tomo_num)
             process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
         end
+    end
+    
+    % Check if aligned
+    if ~tm_check_if_aligned(tomolist(i))
+        process = false;
+        disp([p.name,tomolist(i).stack_name,' has not been aligned... Moving on to next stack...']);
     end
         
     % Add to list of tomograms
@@ -69,8 +77,9 @@ fprintf(exscript,'{\n');
 % Write path to even tomograms
 fprintf(exscript,'  "even": [\n');
 c = 1;  % Line counter
-for i = 1:n_use
-    fprintf(exscript,['    "',p.root_dir,cryocare.tomo_dir,num2str(tomolist(use_idx(i)).tomo_num),'_EVN.rec"']);
+for i = 1:n_use 
+    name = parse_name(cryocare,tomolist(use_idx(i)));
+    fprintf(exscript,['    "',p.root_dir,cryocare.tomo_dir,name,'_EVN.rec"']);
     if c < n_use
         fprintf(exscript,',\n');
     else
@@ -84,7 +93,8 @@ fprintf(exscript,'  ],\n');
 fprintf(exscript,'  "odd": [\n');
 c = 1;  % Line counter
 for i = 1:n_use
-    fprintf(exscript,['    "',p.root_dir,cryocare.tomo_dir,num2str(tomolist(use_idx(i)).tomo_num),'_ODD.rec"']);
+    name = parse_name(cryocare,tomolist(use_idx(i)));
+    fprintf(exscript,['    "',p.root_dir,cryocare.tomo_dir,name,'_ODD.rec"']);
     if c < n_use
         fprintf(exscript,',\n');
     else
@@ -154,6 +164,19 @@ system([dep.cryoCARE_extract_train_data,' --conf ',p.root_dir,cryocare.cryocare_
 disp([p.name,'Running cryoCARE training...']);
 system([dep.cryoCARE_train,' --conf ',p.root_dir,cryocare.cryocare_dir,'train_config.json']);
 
+end
+
+function name = parse_name(cryocare,t)
+
+% Check stack type
+switch cryocare.process_stack
+    case 'dose-filtered'
+        [~,name,~] = fileparts(t.dose_filtered_stack_name);
+    case 'unfiltered'
+        [~,name,~] = fileparts(t.stack_name);
+end
+
+end
 
 
 

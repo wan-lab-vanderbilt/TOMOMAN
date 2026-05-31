@@ -1,0 +1,127 @@
+NAME
+    isonet.py refine - train neural network to correct missing wedge
+
+SYNOPSIS
+    isonet.py refine SUBTOMO_STAR <flags>
+
+DESCRIPTION
+    isonet.py refine subtomo_star [--iterations] [--gpuID] [--preprocessing_ncpus] [--batch_size] [--steps_per_epoch] [--noise_start_iter] [--noise_level]...
+
+POSITIONAL ARGUMENTS
+    SUBTOMO_STAR
+        Type: str
+        (None) star file containing subtomogram(s).
+
+FLAGS
+    --gpuID=GPUID
+        Type: Optional[str]
+        Default: None
+        (0,1,2,3) The ID of gpu to be used during the training. e.g 0,1,2,3.
+    --iterations=ITERATIONS
+        Type: Optional[int]
+        Default: None
+        (30) Number of training iterations.
+    --data_dir=DATA_DIR
+        Type: Optional[str]
+        Default: None
+        (data) Temperary folder to save the generated data used for training.
+    --pretrained_model=PRETRAINED_MODEL
+        Type: Optional[str]
+        Default: None
+        (None) A trained neural network model in ".h5" format to start with.
+    --log_level=LOG_LEVEL
+        Type: Optional[str]
+        Default: None
+        (info) debug level, could be 'info' or 'debug'
+    --result_dir=RESULT_DIR
+        Type: str
+        Default: 'results'
+        ('results') The name of directory to save refined neural network models and subtomograms
+    --remove_intermediate=REMOVE_INTERMEDIATE
+        Type: bool
+        Default: False
+    --select_subtomo_number=SELECT_SUBTOMO_NUMBER
+        Type: Optional[int]
+        Default: None
+    --preprocessing_ncpus=PREPROCESSING_NCPUS
+        Type: int
+        Default: 16
+        (16) Number of cpu for preprocessing.
+
+        ************************Training settings************************
+    --continue_from=CONTINUE_FROM
+        Type: Optional[str]
+        Default: None
+        (None) A Json file to continue from. That json file is generated at each iteration of refine.
+    --epochs=EPOCHS
+        Type: int
+        Default: 10
+        (10) Number of epoch for each iteraction.
+    --batch_size=BATCH_SIZE
+        Type: Optional[int]
+        Default: None
+        (None) Size of the minibatch.If None, batch_size will be the max(2 * number_of_gpu,4). batch_size should be divisible by the number of gpu.
+    --steps_per_epoch=STEPS_PER_EPOCH
+        Type: Optional[int]
+        Default: None
+        (None) Step per epoch. If not defined, the default value will be min(num_of_subtomograms * 6 / batch_size , 200)
+
+        ************************Denoise settings************************
+    --noise_level=NOISE_LEVEL
+        Type: tuple
+        Default: (0.05, 0.1, 0.15, 0.2)
+        (0.05,0.1,0.15,0.2) Level of noise STD(added noise)/STD(data) after the iteration defined in noise_start_iter.
+    --noise_start_iter=NOISE_START_ITER
+        Type: tuple
+        Default: (11, 16, 21, 26)
+        (11,16,21,26) Iteration that start to add noise of corresponding noise level.
+    --noise_mode=NOISE_MODE
+        Type: Optional[str]
+        Default: None
+        (None) Filter names when generating noise volumes, can be 'ramp', 'hamming' and 'noFilter'
+    --noise_dir=NOISE_DIR
+        Type: Optional[str]
+        Default: None
+        (None) Directory for generated noise volumes. If set to None, the Noise volumes should appear in results/training_noise
+
+        ************************Network settings************************
+    --learning_rate=LEARNING_RATE
+        Type: Optional[float]
+        Default: None
+        (0.0004) learning rate for network training.
+    --drop_out=DROP_OUT
+        Type: float
+        Default: 0.3
+        (0.3) Drop out rate to reduce overfitting.
+    --convs_per_depth=CONVS_PER_DEPTH
+        Type: int
+        Default: 3
+        (3) Number of convolution layer for each depth.
+    --kernel=KERNEL
+        Type: tuple
+        Default: (3, 3, 3)
+        (3,3,3) Kernel for convolution
+    --pool=POOL
+        Type: Optional[tuple]
+        Default: None
+        (False) Use pooling layer instead of stride convolution layer.
+    --unet_depth=UNET_DEPTH
+        Type: int
+        Default: 3
+        (3) Depth of UNet.
+    --filter_base=FILTER_BASE
+        Type: Optional[int]
+        Default: None
+        (64) The base number of channels after convolution.
+    --batch_normalization=BATCH_NORMALIZATION
+        Type: bool
+        Default: True
+        (True) Use Batch Normalization layer
+    --normalize_percentile=NORMALIZE_PERCENTILE
+        Type: bool
+        Default: True
+        (True) Normalize the 5 percent and 95 percent pixel intensity to 0 and 1 respectively. If this is set to False, normalize the input to 0 mean and 1 standard dievation.
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
+

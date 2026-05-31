@@ -138,9 +138,11 @@ for i = 1:n_img
                 % Check value type
                 switch field_types{j}
                     case 'str'
-                        mdoc_param(i).(fields{j}) = value;
+                        mdoc_param(i).(fields{j}) = strtrim(value); % strtrim as a hack for sorted PACE tomo stacks; for some reason, they read with a newline at the end...
                     case 'num'
                         mdoc_param(i).(fields{j}) = str2num(value); %#ok<ST2NM>
+                    case 'datetime'
+                        mdoc_param(i).(fields{j}) = datetime(value);
                 end
         end
     end

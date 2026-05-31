@@ -5,7 +5,7 @@ function tm_tiltctf_calculate_ps(p,tiltctf_paramfilename)
 % SK, WW 06-2022
 
 %%%% DEBUG
-% tiltctf_paramfilename = '/hd1/wwan/mintu/VUKrios_Apr22/tomoman_test/Position_5/tiltctf/Position_5_tiltctf.param';
+% tiltctf_paramfilename = 'TS_001_tiltctf_ps.param';
 
 
 %% Initialize
@@ -15,51 +15,57 @@ param_cell = tm_read_paramfile(tiltctf_paramfilename);
 
 % Parse are-struct
 tctf_fields = tm_get_tiltctf_ps_fields();
-tctf = tm_parse_param(tctf_fields,param_cell);
+tctf_ps = tm_parse_param(tctf_fields,param_cell);
 
 
 
 %% Read input files
 
 % Read numeric inputs
-tilts = csvread(tctf.tlt_name);
-xf = dlmread(tctf.xf_name);
-lut = dlmread(tctf.lut_name);
+tilts = csvread(tctf_ps.tlt_name);
+xf = dlmread(tctf_ps.xf_name);
+lut = dlmread(tctf_ps.lut_name);
 
 % Parse stack name
-[stack_dir,stack_name,~] = fileparts(tctf.stack_name);
-stack_dir = [stack_dir,'/'];
+[~,stack_name,~] = fileparts(tctf_ps.stack_name);
 
 disp([p.name,'Calculating tilt-adjusted power spectrum for ',stack_name]);
 
 % Read stack
 disp([p.name,'Reading stack...']);
-stack = sg_mrcread(tctf.stack_name);
+stack = sg_mrcread(tctf_ps.stack_name);
 image_size = [size(stack,1);size(stack,2)];
 n_img = size(stack,3);
+
+% Check input defocus
+if sg_check_param(tctf_ps,'target_def')
+    target_def = ones(n_img,1).*tctf_ps.target_def;
+elseif sg_check_param(tctf_ps,'def_file')
+    target_def = dlmread(tctf_ps.def_file);
+    disp([p.name,'Refining previously estimated defocus values...']);
+    if numel(target_def) ~= n_img
+        error([p.name,'ACHTUNG!!! Mismatch between number of tilts in def_file and input stack!!!']);
+    end
+else
+    error([p.name,'ACHTUNG!!! No input defocus found. Either target_def or def_file need to be set!!!']);
+end
 
 
 %% Calculate grids for periodogram sampling
 
 % Generate grid
 disp([p.name,'Calculating grid...']);
-[grid_points,d_offsets] = tm_tiltctf_calculate_sampling_grid(image_size, tctf.pixelsize, tctf.ps_size, tctf.def_tol, xf, tilts, tctf.xtilt);
+[grid_points,d_offsets] = tm_tiltctf_calculate_sampling_grid(image_size, tctf_ps.pixelsize, tctf_ps.ps_size, tctf_ps.def_tol, xf, tilts, tctf_ps.xtilt);
 total_ft = size(grid_points,1);
 
 % Initialize volumes
-p_ps_stack = zeros(tctf.ps_size,tctf.ps_size,n_img);
-if sg_check_param(tctf,'write_unstretched')
+p_ps_stack = zeros(tctf_ps.ps_size,tctf_ps.ps_size,n_img);
+if sg_check_param(tctf_ps,'write_unstretched')
     u_ps_stack = p_ps_stack;
 end
-if sg_check_param(tctf,'write_negative')
+if sg_check_param(tctf_ps,'write_negative')
     n_ps_stack = p_ps_stack;
 end
-
-
-% Find defocus closes to target
-[~,def_idx] = min(abs(lut(:,1)-abs(tctf.target_def)));
-% Define scaling-factor function
-scale_fun = @(d_off)(lut(def_idx,2).*(d_off.^2)) + (lut(def_idx,3).*d_off) +1;    % Giving defocus offset provides scaling factor
 
 
 %% Calculate spectra
@@ -68,7 +74,7 @@ scale_fun = @(d_off)(lut(def_idx,2).*(d_off.^2)) + (lut(def_idx,3).*d_off) +1;  
 disp([p.name,'Begin calculating FTs']);
 
 % Calculate masks
-[tile_mask, m_idx, n_pix] = tm_tiltctf_calculate_tile_mask(tctf.ps_size,20,'circle');
+[tile_mask, m_idx, n_pix] = tm_tiltctf_calculate_tile_mask(tctf_ps.ps_size,20,'circle');
 
 % Counter stuff
 c = 0;
@@ -76,6 +82,12 @@ tic;
 
 %figure;
 for i = 1:n_img
+    
+    % Find defocus closes to target
+    [~,def_idx] = min(abs(lut(:,1)-abs(target_def(i))));
+    % Define scaling-factor function
+    scale_fun = @(d_off)(lut(def_idx,2).*(d_off.^2)) + (lut(def_idx,3).*d_off) +1;    % Giving defocus offset provides scaling factor
+
     
     % Parse grid positions
     pos_idx = grid_points(:,3) == i;
@@ -89,10 +101,10 @@ for i = 1:n_img
     for j = 1:n_pos
         
         % Crop tile
-        x1 = temp_pos(j,1) - floor(tctf.ps_size/2);
-        x2 = x1 + tctf.ps_size - 1;
-        y1 = temp_pos(j,2) - floor(tctf.ps_size/2);
-        y2 = y1 + tctf.ps_size - 1;
+        x1 = temp_pos(j,1) - floor(tctf_ps.ps_size/2);
+        x2 = x1 + tctf_ps.ps_size - 1;
+        y1 = temp_pos(j,2) - floor(tctf_ps.ps_size/2);
+        y2 = y1 + tctf_ps.ps_size - 1;
         tile = double(stack(x1:x2,y1:y2,i));
         
         
@@ -111,10 +123,10 @@ for i = 1:n_img
         
         
         % Rescale positive
-        p_scale_factor = scale_fun((tctf.handedness).*temp_def(j));        % Scaling factor  
+        p_scale_factor = scale_fun((tctf_ps.handedness).*temp_def(j));        % Scaling factor  
         
         
-        p_res_amp = sg_fourier_rescale_image(temp_amp,p_scale_factor*tctf.fscaling); %ORIG
+        p_res_amp = sg_fourier_rescale_image(temp_amp,p_scale_factor*tctf_ps.fscaling); %ORIG
         %p_res_amp = imresize(temp_amp,p_scale_factor*fscaling,'lanczos3');
         %p_res_amp = tom_cut_out(p_res_amp,'center',[256 256]);
         %p_res_amp = tomoman_tiltctf_realspace_rescale_ps(temp_amp,p_scale_factor*fscaling);
@@ -122,23 +134,23 @@ for i = 1:n_img
         p_ps_stack(:,:,i) = p_ps_stack(:,:,i) + p_res_amp; % Sum amplitude
             
         % Unstretched
-        if sg_check_param(tctf,'write_unstretched')
-            u_res_amp = sg_fourier_rescale_image(temp_amp,tctf.fscaling);
+        if sg_check_param(tctf_ps,'write_unstretched')
+            u_res_amp = sg_fourier_rescale_image(temp_amp,tctf_ps.fscaling);
             %u_res_amp = tomoman_tiltctf_realspace_rescale_ps(temp_amp,fscaling);
             u_ps_stack(:,:,i) = u_ps_stack(:,:,i) + u_res_amp;
         end
 
         
         % Negative defocus scaling
-        if sg_check_param(tctf,'write_negative')
-            n_scale_factor = scale_fun(-(tctf.handedness).*temp_def(j));        % Scaling factor                
-            n_res_amp = sg_fourier_rescale_image(temp_amp,n_scale_factor*tctf.fscaling);
+        if sg_check_param(tctf_ps,'write_negative')
+            n_scale_factor = scale_fun(-(tctf_ps.handedness).*temp_def(j));        % Scaling factor                
+            n_res_amp = sg_fourier_rescale_image(temp_amp,n_scale_factor*tctf_ps.fscaling);
             %n_res_amp = tomoman_tiltctf_realspace_rescale_ps(temp_amp,n_scale_factor*fscaling);
             n_ps_stack(:,:,i) = n_ps_stack(:,:,i) + n_res_amp; % Sum amplitude
         end
         
         % Diagnostic plots        
-        if sg_check_param(tctf,'visualdebug')
+        if sg_check_param(tctf_ps,'visualdebug')
             subplot(2,3,2); tom_imagesc(n_ps_stack(:,:,i));title(['sum neg PS Nr ' num2str(j)]); drawnow;
             subplot(2,3,5); tom_imagesc(p_ps_stack(:,:,i));title(['sum pos PS Nr ' num2str(j)]); drawnow;
             subplot(2,3,6); tom_imagesc(p_res_amp);title(['pos PS Nr ' num2str(j)]); drawnow;
@@ -154,10 +166,10 @@ for i = 1:n_img
     
     % Divide to calculate mean
     p_ps_stack(:,:,i) = p_ps_stack(:,:,i)./n_pos;
-    if sg_check_param(tctf,'write_unstretched')
+    if sg_check_param(tctf_ps,'write_unstretched')
         u_ps_stack(:,:,i) = u_ps_stack(:,:,i)./n_pos;
     end
-    if sg_check_param(tctf,'write_negative')
+    if sg_check_param(tctf_ps,'write_negative')
         n_ps_stack(:,:,i) = n_ps_stack(:,:,i)./n_pos;
     end
     
@@ -180,22 +192,22 @@ end
 %% Write outputs
 
 % Write output PS stack
-sg_mrcwrite(tctf.output_name,p_ps_stack);
+sg_mrcwrite(tctf_ps.output_name,p_ps_stack);
 
 % Parse filename
-if sg_check_param(tctf,'write_unstretched') || sg_check_param(tctf,'write_negative')
-    [dir,name,ext] = fileparts(tctf.output_name);
+if sg_check_param(tctf_ps,'write_unstretched') || sg_check_param(tctf_ps,'write_negative')
+    [dir,name,ext] = fileparts(tctf_ps.output_name);
     if ~isempty(dir)
         dir = [dir,'/'];
     end
 end
  
 % Write remaining stacks
-if sg_check_param(tctf,'write_unstretched')
+if sg_check_param(tctf_ps,'write_unstretched')
     uname = [dir,name,'_unstretched',ext];
     sg_mrcwrite(uname,u_ps_stack);
 end
-if sg_check_param(tctf,'write_negative')
+if sg_check_param(tctf_ps,'write_negative')
     nname = [dir,name,'_negative',ext];
     sg_mrcwrite(nname,n_ps_stack);
 end

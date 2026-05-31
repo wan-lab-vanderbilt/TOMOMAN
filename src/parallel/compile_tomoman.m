@@ -6,7 +6,7 @@ function compile_tomoman(target_dir)
 % WW 07-2022
 
 % % % % DEBUG
-% target_dir = '/dors/wan_lab/home/wanw/research/software/tomoman/TOMOMAN-vandy/exec/lib/';
+% target_dir = '/sb/wanlab/home/wanw/research/software/tomoman/TOMOMAN_v0.9rel_20240516/exec/lib/';
 
 
 %% Compile
@@ -30,8 +30,8 @@ mcc('-R', 'nojvm', '-R', 'nodisplay', '-R', 'nosplash', '-m', 'tomoman_parallel.
 system(['chmod +x ',target_dir,'tomoman_parallel']);
 
 % Compile standalone
-sg_toolbox_dir = '/dors/wan_lab/home/wanw/research/software/stopgap/0.7.4/sg_toolbox/';
-tomoman_dir = '/home/wanw/research/software/tomoman/TOMOMAN_v0.9rel_20240516/';
+sg_toolbox_dir = '/sb/wanlab/home/wanw/research/software/stopgap/0.7.6/sg_toolbox/';
+tomoman_dir = '/sb/wanlab/home/wanw/research/software/tomoman/TOMOMAN_v0.9rel_20240516/';
 mcc('-R', 'nosplash', '-m', 'tomoman_standalone.m', '-d', target_dir, '-a', lut_name, '-a', dep_param, '-a', sg_toolbox_dir, '-a', tomoman_dir)
 system(['chmod +x ',target_dir,'tomoman_standalone']);
 

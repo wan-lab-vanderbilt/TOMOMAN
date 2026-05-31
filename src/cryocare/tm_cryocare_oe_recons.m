@@ -12,11 +12,11 @@ disp([p.name,'Initializing reconstruction of odd and even frame tomograms for cr
 % Number of stacks
 n_stacks = numel(tomolist);
 
-% Check for recons_list
-if sg_check_param(cryocare,'recons_list')
-    recons_list = dlmread([p.root_dir,cryocare.recons_list]);
+% Check for subset_list
+if sg_check_param(cryocare,'subset_list')
+    subset_list = dlmread([p.root_dir,cryocare.subset_list]);
 else
-    recons_list = [];
+    subset_list = [];
 end
 
 % Check binnings
@@ -52,15 +52,23 @@ for i = 1:n_stacks
     % Check processing
     process = true;
     if tomolist(i).skip
-        process = false;        
+        process = false;   
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
     end
         
     
-    % Check recons_list
-    if ~isempty(recons_list)
-        if ~any(recons_list == tomolist(i).tomo_num)
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
             process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
         end
+    end
+    
+    % Check if aligned
+    if ~tm_check_if_aligned(tomolist(i))
+        process = false;
+        disp([p.name,tomolist(i).stack_name,' has not been aligned... Moving on to next stack...']);
     end
     
     

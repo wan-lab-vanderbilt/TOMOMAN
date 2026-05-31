@@ -6,8 +6,9 @@ tomolist_name = %tomolist_filename                  # Relative to root_dir
 log_name = %tomoman_log_filename                    # Relative to root_dir
 
 # AreTomo Files and Folders
-out_dir = bin8_aretomo/                             # Output directory for reconstructed tomograms, relative to root_dir
+out_dir = aretomo_bin8/                             # Output directory for reconstructed tomograms, relative to root_dir
 process_stack = dose-filtered                       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+subset_list = none                                  # List containing tomo_num values for processing. Set to 'none' to skip.
 aretomo_list = none                                 # List of per-tilt series parameters. By column, tomo_num, AlignZ, and VolZ; AlignZ and VolZ are optional, but if used, must have all entries. Tomograms in the tomolist but not in the aretomo_list will not be processed. Set to 'none' for no list. 
 ovZ = none                                          # Override thickness in IMOD-format tilt.com. TOMOMAN will normally take the VolZ value, but this allows for overriding this. Units are in bin1 pixels. Set to 'none' for no override. 
 
@@ -32,6 +33,6 @@ force_align = 0                 # Force AreTomo to re-align stacks. (1 = yes, 0 
 # Aligned Stack Output
 write_ali_stack = 0                     # Write out an aligned stack using AreTomo parameters
 ali_stack_binning = 8                   # Binning of output aligned stack
-ali_stack_dir = bin8_aretomo_ali/       # Output directory for aligned stacks, relative to root_dir
+ali_stack_dir = bin8_aretomo_ali/       # Output directory for aligned stacks. 
 
 

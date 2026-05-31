@@ -13,7 +13,8 @@ gpu_id = 2,3                        # GPU ID's for training. Note: Training is n
 
 # Training Data Parameters
 tomo_dir = tomo_dir/                # Relative path to tomogram directory. Relative to root_dir
-subset_list = none                  # List of tomograms to be trained on; list is a plain-text file with a column of target tomo_num. Path is relative to root dir. Set to "none" to use all tomogmrams.
+subset_list = none                  # List of tomograms to be trained on; list is a plain-text file with a column of target tomo_num. Path is relative to root dir. Set to "none" to use all tomogmrams. NOTE: it appears that the number of tomograms must be even...
+process_stack = dose-filtered       # Which stack type was used for tomogram reconstruction; either "unfiltered" or "dose-filtered".
 patch_shape = 64,64,64              # Size of the sub-volumes used for training. Should not be smaller than 64,64,64
 num_slices = 1200                   # Number of sub-volumes extracted per tomogram. Default = 1200
 n_normalization_samples = 500       # Number of sub-volumes extracted per tomograms, which are used to compute mean and standard deviation for normalization. Default = 500

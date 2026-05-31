@@ -12,7 +12,7 @@ function par = tomoman_export(root_dir,paramfilename,par)
 
 %%%% DEBUG
 % root_dir = pwd;
-% paramfilename = 'tomoman_export_relion4.param';
+% paramfilename = 'tomoman_export_warptools.param';
 
 %% Check check
 
@@ -143,6 +143,29 @@ switch task
             % compile star files 
             if sg_check_param(export,'sg_motl')
                 tm_export2warp_final(global_tomolist, export);
+            end
+        end
+
+    case 'export_warptools'
+        % Check if this is a processing node
+        if ~par_proc
+            proc = true;
+        else
+            % proc = false;
+            error([p.name,'parallel export is not yet supported!!!']);
+        end
+
+        % Run process or wait
+        if proc
+            % Export to warptools pipeline
+            if sg_check_param(export,'tomo_export')
+                tm_export2warptools_parallel(tomolist,export);
+            end
+
+
+            % compile star files 
+            if sg_check_param(export,'sg_motl')
+                tm_export2warptools_final(global_tomolist, export);
             end
         end
 

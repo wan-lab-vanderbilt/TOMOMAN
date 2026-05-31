@@ -35,6 +35,9 @@ switch task
     case 'motioncor2'
         task_cell = {'motioncor2','newstack'};
         
+    case 'motioncor3'
+        task_cell = {'motioncor3','newstack'};
+        
     case 'clean_stacks'
         task_cell = {'imod_3dmod', 'newstack'};
         
@@ -50,6 +53,9 @@ switch task
     case 'imod_reconstruct'
         task_cell = {'etomo','fourier3d'};
         
+    case 'imod_aligned_stack'
+        task_cell = {'etomo'};
+        
     case 'ctffind4'
         task_cell = {'ctffind4'};
         
@@ -59,6 +65,9 @@ switch task
     case 'novactf'
         task_cell = {'novactf','etomo','fourier3d','mpiexec'};
         
+    case 'must_reconstruct'
+        task_cell = {'newstack','must','generate_input_list_cpp'};
+        
     case 'cryocare_oe_recons'
         task_cell = {'etomo','fourier3d'};
 
@@ -67,6 +76,21 @@ switch task
         
     case 'cryocare_predict'
         task_cell = {'cryoCARE_predict'};
+        
+    case {'isonet_prepare','isonet_train','isonet_predict'}
+        task_cell = {'isonet'};
+        
+    case {'isonet2_prepare','isonet2_denoise','isonet2_make_mask','isonet2_make_particle_mask','isonet2_refine'}
+        task_cell = {'isonet2','etomo'};
+        
+    case 'membrain_segment'
+        task_cell = {'membrain'};
+        
+    case 'arctic'
+        task_cell = {'arctic','newstack'};
+        
+    otherwise 
+        error('ACHTUNG!!! Unsupported task!!!');
 
     
 end

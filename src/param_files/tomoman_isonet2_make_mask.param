@@ -1,0 +1,23 @@
+## tomoman_isonet2_make_mask
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+##### IsoNet2 Directory Parameters #####
+isonet2_dir = isonet2/                  # Relative to root_dir
+mask_subdir = masks/                    # Relative to isonet2_dir. 
+
+#### Star Filename ####
+star_filename = isonet2.star            # Filename of output star file. This goes into the isonet2_dir.
+subset_list = none                      # List containing tomo_num values for processing.
+
+##### Mask making parameters #####
+density_percentage = 50                 # Percentage of voxels retained based on local density ranking; lower values create stricter masks (keep fewer voxels). Default: 50.
+std_percentage = 50                     # Percentage retained based on local standard-deviation ranking; lower values emphasize textured regions. Default: 50.
+patch_size = 4                          # Local patch size used for max/std local filters; larger values smooth detection of specimen regions; default works for typical pixel sizes. Default: 4.
+z_crop = 0.2                            # Fraction of tomogram Z to crop from both ends; masks out top and bottom 10% each when set to 0.2. Use to avoid sampling low-quality reconstruction edges. Default: 0.2.
+
+

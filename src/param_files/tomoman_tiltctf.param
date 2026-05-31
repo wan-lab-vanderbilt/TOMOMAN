@@ -7,13 +7,14 @@ log_name = %tomoman_log_filename            # Relative to root_dir
 
 # Tilctf Parameters
 force_tiltctf = 1                   # 1 = yes, 0 = no
-ps_size = 512          # Size of power-spectrum in pixels
-def_tol = 0.05         # Tilted defocus tolerance in microns. This determines sampling rate along the x-axis of the tilt-series.
-fscaling = 2           # Scaling in Fourier space.
-calc_ps = 1           # 1 = to run ps calculation from scratch, 0 = to only run ctffind4 on already calculated ps
-def_range = 0.5           # Defocus fitting search tolerance in microns. TOMOMAN will use this and the "target_defocus" values in the tomolist to calculate the CTFFIND4 min_res and max_res parameters.
-use_xtilt = 1           # Check for xtilt value and use if available.
-handedness = -1         # Determines the CTF handedness.
+subset_list = none                  # List containing tomo_num values for processing.
+ps_size = 512                       # Size of power-spectrum in pixels
+def_tol = 0.05                      # Tilted defocus tolerance in microns. This determines sampling rate along the x-axis of the tilt-series.
+fscaling = 2                        # Scaling in Fourier space.
+calc_ps = 1                         # 1 = to run ps calculation from scratch, 0 = to only run ctffind4 on already calculated ps
+def_range = 0.5                     # Defocus fitting search tolerance in microns. TOMOMAN will use this and the "target_defocus" values in the tomolist to calculate the CTFFIND4 min_res and max_res parameters.
+use_xtilt = 1                       # Check for xtilt value and use if available.
+handedness = 1                     # Determines the CTF handedness.
 
 # CTFFIND parameters
 cs = 2.7                  # Spherical aberration

@@ -1,0 +1,24 @@
+## tomoman_export_warptools
+
+# Directory Parameters
+root_dir = %root_directory                         # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+# TOMOMAN parameters
+
+##### Export to Warp #####
+output_dir = /path/to/warptools_dir                   # Path to Export/output dir.
+sg_motl = /path/to/unbinned_motl.star                                      # Full path to sg motl. Make sure it's in unbinned pixels. 
+process_stack = dose-filtered                        # Stack for processing. Either 'unfiltered' or 'dose-filtered'
+export_list = none                                  # List of tomograms to be Exported.
+tomo_export = 1                                     # Whether to Export Tomograms
+
+# Warptools Parameters
+
+pertilt_exposure = 3.5                                  # Per tilt Exposure
+tomodim = [4096,4096,2048]                                  # Tomogram dimensions
+particle_bin = 8                                  # output particle list binning
+particle_box = 32                                  # Output particle box size for given output binning
+particle_radii = 320                                   # Particle radius in Angstrom 
+initialize = 0                                  # Whether to initialise warp project.

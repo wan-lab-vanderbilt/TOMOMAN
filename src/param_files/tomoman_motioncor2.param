@@ -10,7 +10,7 @@ log_name = %tomoman_log_filename            # Relative to root_dir
 # TOMOMAN parameters
 force_realign = 0                  # Force realignment. 1 = yes, 0 = no
 image_size = 5760,4092             # Crops or expands to image_size. Useful to produce image dimensions with integer binning factors (e.g. K2)
-
+subset_list = none                 # List containing tomo_num values for processing.
 
 # MotionCor2 parameters
 input_format = mrc                 # "tiff" or "mrc" or "eer"

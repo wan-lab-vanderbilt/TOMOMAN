@@ -81,7 +81,7 @@ if par_proc
     disp([p.name,'Parallel processing enabled...']);
     
     % Split tomolist
-    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par);
+    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par,'archive',archive);
     if isempty(tomolist)
         return
     end
@@ -91,8 +91,8 @@ end
 %% Run pipeline!!!
 
 % Generate subset motl
-if ~isempty(archive.archive_list)
-    subset = dlmread(archive.archive_list);
+if ~isempty(archive.subset_list)
+    subset = dlmread(archive.subset_list);
     sub_ndx = ismember([tomolist.tomo_num], subset');
     tomolist = tomolist(sub_ndx);
 end
@@ -108,9 +108,9 @@ while all(t <= n_tilts)
     tomolist(t) = tm_archive_tomogram(p,tomolist(t),archive,par);
     % Save tomolist
     if par_proc
-        save([p.root_dir,p.tomolist_name],'tomolist');
+        tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     else
-        save([archive.archive_dir,p.tomolist_name],'tomolist');
+        tm_save_tomolist(archive.archive_dir,p.tomolist_name,tomolist);
     end
     % Increment counter
     t = t+b_size;

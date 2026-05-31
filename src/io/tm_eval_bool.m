@@ -6,7 +6,7 @@
 %% Evaluate boolean
 function output = tm_eval_bool(input)
 
-switch input
+switch lower(input)
     case {'0','false',0}
         output = false;
     case {'1','true',1}

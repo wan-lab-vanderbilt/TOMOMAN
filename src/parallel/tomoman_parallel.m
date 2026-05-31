@@ -10,10 +10,10 @@ function tomoman_parallel(varargin)
 % parallel pipeline job.
 %
 % WW 07-2022
-
+% 
 
 % % % % % DEBUG
-% varargin = {'root_dir', '/hd1/wwan/practicals/2024_umich/test/tomo/', 'paramfilename', 'tomoman_aretomo.param', 'n_nodes', '1', 'node_id', '0', 'n_tasks', '2', 'local_id', '0', 'task_id', '0', 'n_tasks_per_node', '2', 'cpus_per_task', '10', 'gpu_per_node', '1', 'gpu_per_task', '1' 'gpu_list', '3'};
+% varargin = {'root_dir', '/sb/wanlab/data/measles/02062026_wanw_wanw_Mev_TOMO/', 'paramfilename', 'tomoman_isonet2_prepare.param', 'n_nodes', '1', 'node_id', '0', 'n_tasks', '3', 'local_id', '0', 'task_id', '0', 'n_tasks_per_node', '3', 'cpus_per_task', '10', 'gpu_per_node', '3', 'gpu_per_task', '1' 'gpu_list', '1,2,3'};
 
 %% Initialize
 
@@ -21,7 +21,7 @@ function tomoman_parallel(varargin)
 par = tm_parse_parallel_inputs(varargin);
 
 % Limit number of cores
-maxNumCompThreads(par.n_tasks_per_node);
+maxNumCompThreads(par.cpus_per_task);
 
 % Set up comm folder
 par = tm_par_initialize_dirs(par);
@@ -64,10 +64,13 @@ switch lower(task)
 
         % Recompile results
         % task = tm_parse_tasks(par.paramfilename);
-        tm_par_finish_run(par);
+        tm_par_finish_run(par,par.paramfilename);
             
             
 end
 
-
+% Final cleanup
+if par.task_id == 1
+    system(['rm -f ',par.temp_dir,'/*']);
+end
 

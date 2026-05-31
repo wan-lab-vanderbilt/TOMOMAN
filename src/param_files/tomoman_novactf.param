@@ -23,6 +23,7 @@ ali_stack_bin = 1                   # Binning factor of aligned stack prior to r
 process_stack = dose-filtered       # Stack for processing. Either 'unfiltered' or 'dose-filtered'
 correction_type = phaseflip         # Options are 'phaseflip' or 'multiplication'
 defocus_step = 20                   # Defocus step along tomogram thickness in nm
+handedness = 1                      # Determines the CTF handedness.
 
 # Tomogram Reconstruction Parameters
 radial = none                       # RADIAL parameter from the IMOD tilt function. Set to 'none' to skip.
@@ -30,7 +31,7 @@ tomo_bin = 1,2,4,8                  # Output binning parameters.
 output_dir_prefix = novactf_        # Prefix of output directory, relative to root_dir. For example, if prefix is "novactf_" and tomo_bin is "1,2", then output directories are novactf_bin1/ and novactf_bin2/.
 
 # Additional Parameters
-recons_list = none                  # Full path to list of tomograms to be reconstructed; list is a plain-text file with a column of target tomo_num. Set to none to reconstruct all tomogmrams in
+subset_list = none                  # Full path to list of tomograms to be reconstructed; list is a plain-text file with a column of target tomo_num. Set to none to reconstruct all tomogmrams in
 force_novactf = 0                   # Force NovaCTF reconstruction. (1 = yes, 0 = no). If a recons_list is given, only those will be reconstructed. 
 
 # Fourier3D Parameters

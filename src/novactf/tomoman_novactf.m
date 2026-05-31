@@ -13,7 +13,7 @@ function par = tomoman_novactf(root_dir,paramfilename,par)
 
 %%%% DEBUG
 % root_dir = pwd;
-% paramfilename = 'tomoman_novactf.param';
+% paramfilename = 'tomoman_novactf2.param';
 
 
 %% Check check
@@ -88,7 +88,7 @@ if par_proc
     disp([p.name,'Parallel processing enabled...']);
     
     % Split tomolist
-    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par);
+    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par,'novactf',novactf);
     if isempty(tomolist)
         par = tm_check_last_task(par_proc,par,'novactf');
         return
@@ -115,7 +115,7 @@ while all(t <= n_tilts)
     
     
     % Save tomolist
-    save([p.root_dir,p.tomolist_name],'tomolist');
+    tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     
     t = t+b_size;
     

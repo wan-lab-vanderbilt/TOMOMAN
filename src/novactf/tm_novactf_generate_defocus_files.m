@@ -14,15 +14,19 @@ function n_stacks = tm_novactf_generate_defocus_files(p,tomolist, novactf, dep, 
 %% Initialize
 
 % Copy ctfphaseflip file to novaCTF folder
-switch tomolist.ctf_determination_algorithm
-    case 'ctffind4'
-        ctfphaseflipname = [tomolist.stack_dir,'ctffind4/ctfphaseflip_ctffind4.txt'];
-    case 'tiltctf'
-        ctfphaseflipname = [tomolist.stack_dir,'tiltctf/ctfphaseflip_tiltctf.txt'];
-    otherwise
-        disp([p.name,'ACHTUNG!!! Unsupported ctf_determination_algorithm']);
-end
-
+% switch tomolist.ctf_determination_algorithm
+%     case 'ctffind4'
+%         ctfphaseflipname = [tomolist.stack_dir,'ctffind4/ctfphaseflip_ctffind4.txt'];
+%     case 'tiltctf'
+%         ctfphaseflipname = [tomolist.stack_dir,'tiltctf/ctfphaseflip_tiltctf.txt'];
+%     case 'sg_ctfrefine'
+%         ctfphaseflipname = [tomolist.stack_dir,'sg_ctfrefine/ctfphaseflip_sg_ctfrefine.txt'];
+%     case 'motioncor3'
+%         ctfphaseflipname = [tomolist.stack_dir,'MotionCor3/ctfphaseflip_motioncor3.txt'];
+%     otherwise
+%         disp([p.name,'ACHTUNG!!! Unsupported ctf_determination_algorithm']);
+% end
+ctfphaseflipname = tm_get_ctfphaseflip_filename(p,tomolist);
 system(['cp ',ctfphaseflipname,' ',tomolist.stack_dir,'novaCTF/defocus_files/ctfphaseflip.txt']);
 
 
@@ -49,6 +53,16 @@ if isfield(novactf,'cen_mass')
 end
     
 
+%% Calculate binned dimensions
+
+% Binning dimensions for aligned stacks
+ali_x = round(tiltcom.FULLIMAGE(1)/novactf.ali_stack_bin);
+ali_y = round(tiltcom.FULLIMAGE(2)/novactf.ali_stack_bin);
+thickness = floor(tiltcom.THICKNESS/novactf.ali_stack_bin);
+
+% Calculate binned pixelsize in nm
+pixelsize = (tomolist.pixelsize*novactf.ali_stack_bin)/10;
+
 
 %% Generate parameter file
 disp([p.name,'Running novaCTF to generate defocus files for input stacks...']);
@@ -60,14 +74,14 @@ param = fopen(com_name,'w');
 % Print lines
 fprintf(param,['Algorithm defocus','\n']);
 fprintf(param,['InputProjections ',tomolist.stack_dir,stack_name,'\n']);
-fprintf(param,['FULLIMAGE ',num2str(tiltcom.FULLIMAGE(1)),' ',num2str(tiltcom.FULLIMAGE(2)),'\n']);
-fprintf(param,['THICKNESS ',num2str(tiltcom.THICKNESS),'\n']);
+fprintf(param,['FULLIMAGE ',num2str(ali_x),' ',num2str(ali_y),'\n']);
+fprintf(param,['THICKNESS ',num2str(thickness),'\n']);
 fprintf(param,['TILTFILE ',tomolist.stack_dir,tlt_name,'\n']);
 fprintf(param,['SHIFT 0.0 0.0','\n']);
 fprintf(param,['CorrectionType ',novactf.correction_type,'\n']);
 fprintf(param,['DefocusFileFormat imod','\n']);
 fprintf(param,['DefocusFile ',tomolist.stack_dir,'novaCTF/defocus_files/ctfphaseflip.txt','\n']);
-fprintf(param,['PixelSize ',num2str(tomolist.pixelsize/10),'\n']); % Convert from A to nm
+fprintf(param,['PixelSize ',num2str(pixelsize),'\n']); % Convert from A to nm
 fprintf(param,['DefocusStep ',num2str(novactf.defocus_step),'\n']);
 fprintf(param,['CorrectAstigmatism 1','\n']);
 
@@ -106,5 +120,16 @@ n_stacks = numel(def_dir);
 if n_stacks == 0
     error([p.name,'ACHUTNG!!! Error in trying to generate novaCTF defocus files!!!']);
 end
+
+% Check CTF handedness
+if sg_check_param(novactf,'handedness')
+    if novactf.handedness < 0
+        tm_novactf_flip_hand([tomolist.stack_dir,'novaCTF/defocus_files/'],n_stacks);
+    end
+end
+
+
+
+
 
 

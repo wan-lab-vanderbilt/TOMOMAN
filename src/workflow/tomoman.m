@@ -75,6 +75,9 @@ switch lower(task)
     case 'motioncor2'
         par = tomoman_motioncor2(root_dir,paramfilename,par);
         
+    case 'motioncor3'
+        par = tomoman_motioncor3(root_dir,paramfilename,par);
+        
     case 'clean_stacks'
         par = tomoman_clean_stacks(root_dir,paramfilename,par);
         
@@ -86,6 +89,9 @@ switch lower(task)
         
     case 'imod_preprocess'
         par = tomoman_imod_preprocess(root_dir,paramfilename,par);
+        
+    case 'imod_aligned_stack'
+        par = tomoman_imod_aligned_stack(root_dir,paramfilename,par);
         
     case 'imod_reconstruct'
         par = tomoman_imod_reconstruct(root_dir,paramfilename,par);
@@ -99,17 +105,29 @@ switch lower(task)
     case 'novactf'
         par = tomoman_novactf(root_dir,paramfilename,par);
         
+    case 'must_reconstruct'
+        par = tomoman_must(root_dir,paramfilename,par);
+        
     case {'cryocare_oe_recons','cryocare_train','cryocare_predict'}
         par = tomoman_cryocare(root_dir,paramfilename,par);
 
     case {'archive'}
         par = tomoman_archive(root_dir,paramfilename,par);   
 
-    case {'export_relion4','export_warp','export_stopgap'}
+    case {'export_relion4','export_warp','export_warptools','export_stopgap'}
         par = tomoman_export(root_dir,paramfilename,par);
         
     case {'tempmatch_pytom'}
         par = tomoman_tempmatch_pytom(root_dir,paramfilename,par);
+        
+    case {'isonet_prepare','isonet_train','isonet_predict'}
+        par = tomoman_isonet(root_dir,paramfilename,par);
+        
+    case {'arctic'}
+        par = tomoman_arctic(root_dir,paramfilename,par);
+        
+    case {'isonet2_prepare','isonet2_denoise','isonet2_make_mask','isonet2_make_particle_mask','isonet2_refine'}
+        par = tomoman_isonet2(root_dir,paramfilename,par);
         
     otherwise
         error(['TOMOMAN: ACHTUNG!!! ',task,' is an unsupported task!!!']);

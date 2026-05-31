@@ -1,0 +1,28 @@
+## tomoman_membrain_segment
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+##### Basic Membrain Parameters #####
+process_stack = dose-filtered               # Stack for processing. Either 'unfiltered' or 'dose-filtered'.
+tomo_dir = bin8_cryocare/                   # Directory containing tomograms to be segmented.
+tomo_binning = 8                            # Binning of tomograms to be segmented. (NOTE: Target pixel size for membrain should be ~10A/pix)
+ckpt_path = path_to_model                   # Path to the pre-trained model checkpoint that should be used.
+out_folder = membrain_segmentations/        # Output folder for segmentations.
+rescale_patches = true                      # Should patches be rescaled on-the-fly during inference? ('true' or 'false')
+
+##### Advanced Membrain Parameters #####
+store_probabilities = false                 # Should probability maps be output in addition to segmentations? ('true' or 'false')
+store_connected_components = false          # Should connected components of the segmentation be computed? ('true' or 'false')
+connected_component_thres = none            # (Default = 'none')Threshold for connected components. Components smaller than this will be removed from the segmentation. (Integer Value) 
+test_time_augmentation = true               # (Default = 'true') Use 8-fold test time augmentation (TTA)? TTA improves segmentation quality slightly, but also increases runtime. 
+segmentation_threshold = 0                  # (Default = 0) Threshold for the membrane segmentation. Only voxels with a membrane score higher than this threshold will be segmented. 
+sliding_window_size = 160                   # (Default = 160) Sliding window size used for inference. Smaller values than 160 consume less GPU, but also lead to worse segmentation results! 
+
+##### Other Parameters #####
+gpu_id  = 2,3                               # The ID of gpu to be used during the training. e.g 0,1,2,3.
+subset_list = none                          # List containing tomo_num values for processing.
+
+

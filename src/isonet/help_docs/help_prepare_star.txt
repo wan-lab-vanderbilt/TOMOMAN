@@ -1,0 +1,30 @@
+NAME
+    isonet.py prepare_star - This command generates a tomograms.star file from a folder containing only tomogram files (.mrc or .rec).
+
+SYNOPSIS
+    isonet.py prepare_star FOLDER_NAME <flags>
+
+DESCRIPTION
+    isonet.py prepare_star folder_name [--output_star] [--pixel_size] [--defocus] [--number_subtomos]
+
+POSITIONAL ARGUMENTS
+    FOLDER_NAME
+        (None) directory containing tomogram(s). Usually 1-5 tomograms are sufficient.
+
+FLAGS
+    --output_star=OUTPUT_STAR
+        Default: 'tomograms.star'
+        (tomograms.star) star file similar to that from "relion". You can modify this file manually or with gui.
+    --pixel_size=PIXEL_SIZE
+        Default: 10.0
+        (10) pixel size in anstroms. Usually you want to bin your tomograms to about 10A pixel size. Too large or too small pixel sizes are not recommanded, since the target resolution on Z-axis of corrected tomograms should be about 30A.
+    --defocus=DEFOCUS
+        Default: 0.0
+        (0.0) defocus in Angstrom. Only need for ctf deconvolution. For phase plate data, you can leave defocus 0. If you have multiple tomograms with different defocus, please modify them in star file or with gui.
+    --number_subtomos=NUMBER_SUBTOMOS
+        Default: 100
+        (100) Number of subtomograms to be extracted in later processes. If you want to extract different number of subtomograms in different tomograms, you can modify them in the star file generated with this command or with gui.
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
+

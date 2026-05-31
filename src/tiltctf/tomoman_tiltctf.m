@@ -9,7 +9,7 @@ function par = tomoman_tiltctf(root_dir,paramfilename,par)
 %
 % SK, WW 06-2022
 
-% %%% DEBUG
+%%% DEBUG
 % root_dir = pwd;
 % paramfilename = 'tomoman_tiltctf.param';
 % par = [];
@@ -92,7 +92,7 @@ if par_proc
     disp([p.name,'Parallel processing enabled...']);
     
     % Split tomolist
-    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par);
+    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par,'tiltctf',tctf);
     if isempty(tomolist)
         return
     end
@@ -116,7 +116,7 @@ while all(t <= n_tilts)
     tomolist(t) = tm_tiltctf_ctffind4(tomolist(t),p,tctf,ctffind4,dep,write_list);
     
     % Save tomolist
-    save([p.root_dir,p.tomolist_name],'tomolist');
+    tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     
     t = t+b_size;
     
@@ -128,7 +128,7 @@ if par_proc
 end
 
 % Close log
-diary off
+diary off;
 
 
 

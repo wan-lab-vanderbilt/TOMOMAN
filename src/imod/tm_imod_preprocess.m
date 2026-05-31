@@ -14,6 +14,13 @@ n_stacks = size(tomolist,1);
 % When to end batchruntomo
 endnum=0;
 
+% Check for subset_list
+if sg_check_param(imodpp,'subset_list')
+    subset_list = dlmread([p.root_dir,imodpp.subset_list]);
+else
+    subset_list = [];
+end
+
 %% Write directive file and preprocess for each tomogram
 
 for i = 1:n_stacks
@@ -22,13 +29,21 @@ for i = 1:n_stacks
     process = true;
     if tomolist(i).skip
         process = false;        
-    elseif tomolist(i).imod_preprocessed
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
+    elseif tomolist(i).imod_preprocessed || tomolist(i).stack_aligned
         if ~imodpp.force_imod
             process = false;
+            disp([p.name,tomolist(i).stack_name,' has already been aligned... Moving on to next stack...']);
         end
     end
         
-    
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
+            process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
+        end
+    end
     
     % Perform IMOD preprocessing
     if process        
@@ -202,7 +217,7 @@ for i = 1:n_stacks
         
         % Save tomolist
         if write_list
-            save([p.root_dir,p.tomolist_name],'tomolist');
+            tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     
         end
 

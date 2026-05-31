@@ -6,16 +6,15 @@ function tm_imod_reconstruct(tomolist, p, imod, dep)
 
 
 %% Initialize
-disp([p.name,'Initializing for IMOD reconstruction!!!1!']);
 
 % Number of stacks
 n_stacks = numel(tomolist);
 
-% Check for recons_list
-if sg_check_param(imod,'recons_list')
-    recons_list = dlmread([p.root_dir,imod.recons_list]);
+% Check for subset_list
+if sg_check_param(imod,'subset_list')
+    subset_list = dlmread(tm_check_absolute_path(p.root_dir,imod.subset_list));
 else
-    recons_list = [];
+    subset_list = [];
 end
 
 % Check binnings
@@ -51,14 +50,21 @@ for i = 1:n_stacks
     % Check processing
     process = true;
     if tomolist(i).skip
-        process = false;        
+        process = false; 
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
     end
         
+    % Check if aligned
+    if ~tm_check_if_aligned(tomolist(i))
+        process = false;
+        disp([p.name,tomolist(i).stack_name,' has not been aligned... Moving on to next stack...']);
+    end
     
-    % Check recons_list
-    if ~isempty(recons_list)
-        if ~any(recons_list == tomolist(i).tomo_num)
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
             process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
         end
     end
     
@@ -70,7 +76,7 @@ for i = 1:n_stacks
         % Check stack type
         switch imod.process_stack
             case 'unfiltered'
-                stack_type = [];
+                stack_type = 'uf';
             case 'dose-filtered'
                 stack_type = 'df';
         end
@@ -99,10 +105,12 @@ for i = 1:n_stacks
             for j = 2:numel(imod.tomo_bin)
 
                 % Input tomogram name
-                in_name = [tomo_dir{j-1},num2str(tomolist(i).tomo_num),'.rec'];
+%                 in_name = [tomo_dir{j-1},num2str(tomolist(i).tomo_num),'.rec'];
+                in_name = [tomo_dir{j-1},tomo_name,'.rec'];
 
                 % Ouptut tomogram name
-                out_name = [tomo_dir{j},num2str(tomolist(i).tomo_num),'.rec'];
+%                 out_name = [tomo_dir{j},num2str(tomolist(i).tomo_num),'.rec'];
+                out_name = [tomo_dir{j},tomo_name,'.rec'];
 
                 % Bin factor
                 bin_factor = imod.tomo_bin(j)/imod.tomo_bin(j-1);
@@ -121,14 +129,16 @@ for i = 1:n_stacks
             
             % Close file
             fclose(bscript);
+            
+            % Make executable
+            system(['chmod +x ',bscript_name]);
+
+            % Run file
+            system(bscript_name);
         end
                     
 
-        % Make executable
-        system(['chmod +x ',bscript_name]);
 
-        % Run file
-        system(bscript_name);
             
                        
 

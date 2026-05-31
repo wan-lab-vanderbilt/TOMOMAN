@@ -34,6 +34,53 @@ end
 % end
 % ali_dim = ['-si ',num2str(tiltcom.FULLIMAGE(1)),',',num2str(tiltcom.FULLIMAGE(2)),' '];
 
+% Binning dimensions for aligned stacks
+ali_x = round(tiltcom.FULLIMAGE(1)/novactf.ali_stack_bin);
+ali_y = round(tiltcom.FULLIMAGE(2)/novactf.ali_stack_bin);
+
+% Calculate binned pixelsize in nm
+pixelsize = (tomolist.pixelsize*novactf.ali_stack_bin)/10;
+
+
+%% Check for initial stack binning
+
+% Bin stack
+if sg_check_param(novactf,'ali_stack_bin') 
+    if novactf.ali_stack_bin > 1
+
+        % Open script for binning
+        bscript_name = [tomolist.stack_dir,'novaCTF/scripts/bin_stack.sh'];
+        bscript = fopen(bscript_name,'w');
+
+        % Write comment line
+        fprintf(bscript,['echo "TOMOMAN: Fourier cropping ',' prior to CTF-correction with novaCTF!!!"','\n\n\n']);
+
+        % Bin stack
+        fprintf(bscript,['echo "TOMOMAN: Fourier croping aligned stack ',stack_name,'..."\n']);
+        fprintf(bscript,['newstack -InputFile ',tomolist.stack_dir,stack_name,' ',...
+                         ' -OutputFile ',tomolist.stack_dir,'novaCTF/stacks/',stack_name,' ',...
+                         ' -FourierReduceByFactor ', num2str(novactf.ali_stack_bin),'\n\n']);
+        % Close script
+        fclose(bscript);    
+        
+        % Make executable
+        system(['chmod +x ',bscript_name]);
+        
+        % Run script
+        system(bscript_name);
+
+        % Set initial stack name
+        init_stack = [tomolist.stack_dir,'novaCTF/stacks/',stack_name];
+    else
+        % Set initial stack name
+        init_stack = [tomolist.stack_dir,stack_name];
+    end
+    
+else
+    % Set initial stack name
+    init_stack = [tomolist.stack_dir,stack_name];
+end
+            
 
 %% Write parallel scripts
 
@@ -54,16 +101,17 @@ for i = 1:n_jobs
         % Write comment line
         fprintf(pscript,['echo "TOMOMAN: Processing stack ',num2str(j),' for reconstruction with novaCTF!!!"','\n\n\n']);
         
+        
         % Perform CTF correction via NovaCTF
         fprintf(pscript,['echo "TOMOMAN: Performing CTF correction on stack ',num2str(j),' via novaCTF..."','\n']);
         fprintf(pscript,[dep.novactf,' -Algorithm ctfCorrection ',...
-                         '-InputProjections ',tomolist.stack_dir,stack_name,' ',...
+                         '-InputProjections ',init_stack,' ',...
                          '-DefocusFile ',tomolist.stack_dir,'novaCTF/defocus_files/ctfphaseflip.txt_',num2str(j),' ',...
                          '-OutputFile ',tomolist.stack_dir,'novaCTF/stacks/corrected_stack.st_',num2str(j),' ',...
                          '-TILTFILE ',tomolist.stack_dir,tlt_name,' ',...
                          '-CorrectionType ',novactf.correction_type,' ',...
                          '-DefocusFileFormat imod ',...
-                         '-PixelSize ',num2str(tomolist.pixelsize/10),' ',...
+                         '-PixelSize ',num2str(pixelsize),' ',...
                          '-AmplitudeContrast ',num2str(tomolist.ctf_parameters.famp),' ',...
                          '-Cs ',num2str(tomolist.ctf_parameters.cs),' ',...
                          '-Volt ',num2str(tomolist.voltage),' ',...
@@ -74,7 +122,7 @@ for i = 1:n_jobs
         fprintf(pscript,['newstack -in ',tomolist.stack_dir,'novaCTF/stacks/corrected_stack.st_',num2str(j),' ',...
                          '-ou ',tomolist.stack_dir,'novaCTF/stacks/aligned_stack.ali_',num2str(j),' ',...
                          '-xform ',tomolist.stack_dir,xf_name,' ',...
-                         '-si ',num2str(tiltcom.FULLIMAGE(1)),',',num2str(tiltcom.FULLIMAGE(2)),'\n\n']);
+                         '-si ',num2str(ali_x),',',num2str(ali_y),' -or -ta 1,0 ','\n\n']);
                      
         % Erase gold
         if ~isempty(novactf.erase_radius)
@@ -83,30 +131,13 @@ for i = 1:n_jobs
                 fprintf(pscript,['ccderaser -input ',tomolist.stack_dir,'novaCTF/stacks/aligned_stack.ali_',num2str(j),' ',...
                                  '-output ',tomolist.stack_dir,'novaCTF/stacks/aligned_stack.ali_',num2str(j),' ',...
                                  '-mo ',tomolist.stack_dir,efid_name,' ',...
-                                 '-be ',num2str(novactf.erase_radius),' ',...
+                                 '-be ',num2str(round(novactf.erase_radius/novactf.ali_stack_bin)),' ',...
                                  '-or 0 -me -exc -c / ','\n\n']);
             end
         end
         
-        % Taper edges
-        if ~isempty(novactf.taper_pixels)
-            fprintf(pscript,['echo "TOMOMAN: Tapering edges of aligned stack ',num2str(j),'..."\n']);
-            fprintf(pscript,['mrctaper -t ',num2str(novactf.taper_pixels),' ',...
-                             tomolist.stack_dir,'novaCTF/stacks/aligned_stack.ali_',num2str(j),'\n\n']);
-        end
         
-        % Fourier crop stacks
-        if ~isempty(novactf.ali_stack_bin)            
-            if novactf.ali_stack_bin > 1
-                         
-             % Bin stack
-            fprintf(pscript,['echo "TOMOMAN: Fourier croping aligned stack ',num2str(j),'..."\n']);
-            fprintf(pscript,['newstack -InputFile ',tomolist.stack_dir,'novaCTF/stacks/aligned_stack.ali_',num2str(j),' ',...
-                             ' -OutputFile ',tomolist.stack_dir,'novaCTF/stacks/aligned_stack.ali_',num2str(j),' ',...
-                             ' -FourierReduceByFactor ', num2str(novactf.ali_stack_bin),'\n\n']);
-                         
-            end
-        end
+
         
         % Flip stack
         fprintf(pscript,['echo "TOMOMAN: Flipping aligned stack ',num2str(j),'..."\n']);

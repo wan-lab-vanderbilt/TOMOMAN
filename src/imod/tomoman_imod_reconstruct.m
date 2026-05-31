@@ -85,7 +85,7 @@ if par_proc
     disp([p.name,'Parallel processing enabled...']);
     
     % Split tomolist
-    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par);            
+    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par,'imod_reconstruct',imod);            
 
     
     % Override n_cores
@@ -108,11 +108,11 @@ t = 1;
 
 while all(t <= n_tilts)
     
-    % Run CTFFIND4
+    % Run IMOD reconstruction
     tm_imod_reconstruct(tomolist(t), p, imod, dep);    
     
-    % Save tomolist
-    save([p.root_dir,p.tomolist_name],'tomolist');
+%     % Save tomolist
+%     tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     
     t = t+b_size;
     

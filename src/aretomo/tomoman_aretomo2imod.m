@@ -57,7 +57,7 @@ while all(t <= n_tilts)
     tm_aretomo2imod(tomolist(t),are);    
     
     % Save tomolist
-    save([p.root_dir,p.tomolist_name],'tomolist');
+    tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     
     t = t+b_size;
     

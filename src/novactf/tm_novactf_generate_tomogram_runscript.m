@@ -1,4 +1,4 @@
-function tm_novactf_generate_tomogram_runscript(tomolist,novactf,dep,n_stacks,tlt_name,tiltcom,tomo_dir)
+function tm_novactf_generate_tomogram_runscript(tomolist,novactf,dep,tlt_name,tiltcom,tomo_dir)
 %% tm_novactf_generate_tomogram_runscript
 % A function to generate a 'runscript' for running novaCTF on a tilt-stack.
 %
@@ -7,60 +7,31 @@ function tm_novactf_generate_tomogram_runscript(tomolist,novactf,dep,n_stacks,tl
 %% Initialize
 
 
-% Determine number of cores
-if n_stacks < novactf.n_cores
-    n_cores = n_stacks;
-else
-    n_cores = novactf.n_cores;
-end
-
-% THICKNESS string
-if ~isempty(novactf.ali_stack_bin)    
-    thick_str =  num2str(tiltcom.THICKNESS/novactf.ali_stack_bin);
-else
-    thick_str  =  num2str(tiltcom.THICKNESS);
-end
-
-% FULLIMAGE string
-% if ~isempty(novactf.ali_dim)  % If aligned stack has new dimensions
-%     % If aligned stack was binned 
-%     if ~isempty(novactf.ali_stack_bin)           
-%         bin_x = ceil(novactf.ali_dim(1)/(novactf.ali_stack_bin*2))*2;
-%         bin_y = ceil(novactf.ali_dim(2)/(novactf.ali_stack_bin*2))*2;
-%         fullimage_str = [num2str(bin_x),',',num2str(bin_y)];
-%     else
-%         fullimage_str = [num2str(novactf.ali_dim(1)),',',num2str(novactf.ali_dim(2))];
-%     end
+% % Determine number of cores
+% if n_stacks < novactf.n_cores
+%     n_cores = n_stacks;
 % else
-%     if  ~isempty(novactf.ali_stack_bin)
-%         bin_x = ceil(tiltcom.FULLIMAGE(1)/(novactf.ali_stack_bin*2))*2;
-%         bin_y = ceil(tiltcom.FULLIMAGE(2)/(novactf.ali_stack_bin*2))*2;
-%         fullimage_str = [num2str(bin_x),',',num2str(bin_y)];
-%     else
-%         fullimage_str = [num2str(tiltcom.FULLIMAGE(1)),',',num2str(tiltcom.FULLIMAGE(2))];
-%     end
+%     n_cores = novactf.n_cores;
 % end
-if  ~isempty(novactf.ali_stack_bin)
-        bin_x = ceil(tiltcom.FULLIMAGE(1)/(novactf.ali_stack_bin*2))*2;
-        bin_y = ceil(tiltcom.FULLIMAGE(2)/(novactf.ali_stack_bin*2))*2;
-        fullimage_str = [num2str(bin_x),',',num2str(bin_y)];
-    else
-        fullimage_str = [num2str(tiltcom.FULLIMAGE(1)),',',num2str(tiltcom.FULLIMAGE(2))];
-end
-    
-% SHIFT string
-if ~isempty(novactf.ali_stack_bin)    
-    shift_str =  [num2str(tiltcom.SHIFT(1)/novactf.ali_stack_bin),',',num2str(tiltcom.SHIFT(2)/novactf.ali_stack_bin)];
-else
-    shift_str =  [num2str(tiltcom.SHIFT(1)),',',num2str(tiltcom.SHIFT(2))];
-end
-        
-% PixelSize string
-if ~isempty(novactf.ali_stack_bin)    
-    pixelsize_str = num2str((tomolist.pixelsize*novactf.ali_stack_bin)/10);
-else
-    pixelsize_str = num2str(tomolist.pixelsize/(10));
-end
+
+% Binning dimensions for aligned stacks
+ali_x = round(tiltcom.FULLIMAGE(1)/novactf.ali_stack_bin);
+ali_y = round(tiltcom.FULLIMAGE(2)/novactf.ali_stack_bin);
+thickness = floor(tiltcom.THICKNESS/novactf.ali_stack_bin);
+shift_x = round(tiltcom.SHIFT(1)/novactf.ali_stack_bin);
+shift_y = round(tiltcom.SHIFT(2)/novactf.ali_stack_bin);
+
+% Calculate binned pixelsize in nm
+pixelsize = (tomolist.pixelsize*novactf.ali_stack_bin)/10;
+
+
+% Generate parameter strings
+thick_str  =  num2str(thickness);                       % THICKNESS string
+fullimage_str = [num2str(ali_x),',',num2str(ali_y)];    % FULLIMAGE string
+shift_str =  [num2str(shift_x),',',num2str(shift_y)];   % SHIFT string
+pixelsize_str = num2str(pixelsize);                     % Pixelsize string
+
+
 
 % Parse name of stack used for alignment
 switch tomolist.alignment_stack
@@ -122,26 +93,29 @@ fprintf(rscript,['rm -f ',tomo_dir{1},'/',stack_name,'.rec~','\n']);
 fprintf(rscript,['rm -f ',tomolist.stack_dir,'novaCTF/stacks/*','\n\n']);
 
 % Bin tomograms serially
-for i = 2:numel(novactf.tomo_bin)
-    
-    % Input tomogram name
-    in_name = [tomo_dir{i-1},stack_name,'.rec'];
-    
-    % Ouptut tomogram name
-    out_name = [tomo_dir{i},'/',stack_name,'.rec'];
-    
-    % Bin factor
-    bin_factor = novactf.tomo_bin(i)/novactf.tomo_bin(i-1);
-    
-    % Write script
-    fprintf(rscript,['echo "TOMOMAN: Binning tomogram by a factor of ',num2str(novactf.tomo_bin(i)),' by Fourier cropping..."\n']);
-    fprintf(rscript,[dep.fourier3d,' ',...
-                     '-InputFile ',in_name,' ',...
-                     '-OutputFile ',out_name,' ',...
-                     '-BinFactor ',num2str(bin_factor),' ',...
-                     '-MemoryLimit ',num2str(novactf.f3d_memlimit),' ',...
-                     '> ',tomolist.stack_dir,'novaCTF/logs/binning_log.txt 2>&1','\n\n']);
-        
+n_binning = numel(novactf.tomo_bin);
+if n_binning > 1
+    for i = 2:numel(novactf.tomo_bin)
+
+        % Input tomogram name
+        in_name = [tomo_dir{i-1},stack_name,'.rec'];
+
+        % Ouptut tomogram name
+        out_name = [tomo_dir{i},'/',stack_name,'.rec'];
+
+        % Bin factor
+        bin_factor = novactf.tomo_bin(i)/novactf.tomo_bin(i-1);
+
+        % Write script
+        fprintf(rscript,['echo "TOMOMAN: Binning tomogram by a factor of ',num2str(novactf.tomo_bin(i)),' by Fourier cropping..."\n']);
+        fprintf(rscript,[dep.fourier3d,' ',...
+                         '-InputFile ',in_name,' ',...
+                         '-OutputFile ',out_name,' ',...
+                         '-BinFactor ',num2str(bin_factor),' ',...
+                         '-MemoryLimit ',num2str(novactf.f3d_memlimit),' ',...
+                         '> ',tomolist.stack_dir,'novaCTF/logs/binning_log.txt 2>&1','\n\n']);
+
+    end
 end
 
 % Close file and make executable

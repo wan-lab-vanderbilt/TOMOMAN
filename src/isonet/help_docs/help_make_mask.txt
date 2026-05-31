@@ -1,0 +1,49 @@
+NAME
+    isonet.py make_mask - generate a mask that include sample area and exclude "empty" area of the tomogram. The masks do not need to be precise. In general, the number of subtomograms (a value in star file) should be lesser if you masked out larger area.
+
+SYNOPSIS
+    isonet.py make_mask STAR_FILE <flags>
+
+DESCRIPTION
+    isonet.py make_mask star_file [--mask_folder] [--patch_size] [--density_percentage] [--std_percentage] [--use_deconv_tomo] [--tomo_idx]
+
+POSITIONAL ARGUMENTS
+    STAR_FILE
+        path to the tomogram or tomogram folder
+
+FLAGS
+    --mask_folder=MASK_FOLDER
+        Type: str
+        Default: 'mask'
+        path and name of the mask to save as
+    --patch_size=PATCH_SIZE
+        Type: int
+        Default: 4
+        (4) The size of the box from which the max-filter and std-filter are calculated.
+    --mask_boundary=MASK_BOUNDARY
+        Type: Optional[str]
+        Default: None
+    --density_percentage=DENSITY_PERCENTAGE
+        Type: Optional[int]
+        Default: None
+        (50) The approximate percentage of pixels to keep based on their local pixel density. If this value is not set, the program will look for the parameter in the star file. If this value is not set and not found in star file, the default value 50 will be used.
+    --std_percentage=STD_PERCENTAGE
+        Type: Optional[int]
+        Default: None
+        (50) The approximate percentage of pixels to keep based on their local standard deviation. If this value is not set, the program will look for the parameter in the star file. If this value is not set and not found in star file, the default value 50 will be used.
+    --use_deconv_tomo=USE_DECONV_TOMO
+        Type: bool
+        Default: True
+        (True) If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.
+    --z_crop=Z_CROP
+        Type: Optional[float]
+        Default: None
+        If exclude the top and bottom regions of tomograms along z axis. For example, "--z_crop 0.2" will mask out the top 20% and bottom 20% region along z axis.
+    --tomo_idx=TOMO_IDX
+        Type: Optional[]
+        Default: None
+        (None) If this value is set, process only the tomograms listed in this index. e.g. 1,2,4 or 5-10,15,16
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
+

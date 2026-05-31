@@ -1,0 +1,36 @@
+## tomoman_must_reconstruct
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+# TOMOMAN parameters
+
+# Stack Parameters
+process_stack = dose-filtered               # Stack for processing. Either 'unfiltered' or 'dose-filtered' or 'odd' or 'even'
+erase_radius = none                         # Set to 'none' to skip. Radius (in pixels) for gold fiducial erasing. Requires a *_erase.fid file from IMOD.
+subset_list = none                          # Path to list of tomograms to be reconstructed; list is a plain-text file with a column of target tomo_num. Set to none to reconstruct all tomogmrams in
+
+# Output and binning parameters
+tomo_bin = 4,8                              # Output binning parameters.
+output_dir_prefix = must_     # Prefix of output directory, relative to root_dir. For example, if prefix is "novactf_" and tomo_bin is "1,2", then output directories are novactf_bin1/ and novactf_bin2/.
+
+# Computational parameters
+n_cores = 10                                # Number of cores for parallel processing. Parallel processing is only for building stacks; tomogram reconstruction and binning is not parallelized.
+gpu_id = 3                                  # ID of GPU to use for processing
+
+##### MUST Parameters #####
+skip_ctfcorrection = 0                      # Skip CTF correction (0-Don't skip; 1-Skip)
+ctf_deconvolve = 1                          # Correct CTF with deconvolution using a Wiener-like filter (0-Multiplication; 1-Deconvolution)
+ctf_phaseflip = 0                           # Correct CTF with phase flipping (0-Multiplication; 1-Phase flipping; Phase flippling is not available for 3D-CTF correction)
+ctfcorrection_3d = 1                        # Apply 3D-CTF correction (0-Don't apply; 1-Apply) (If set to 1, the parameter "skip_ctfcorrection" will be ignored)
+
+it_sirt = 0                                 # Number of iterations for SIRT-like filter (Particularly, 0 stands for WBP (turn off SIRT-like filter), 1 stands for BP (no weighting))
+padding = 2                                 # Padding factor of the micrographs before reconstruction (1 or 2 is recommended)
+
+N_block_fft = 2                             # Number of blocks for dividing the tilt-series when doing FFT
+N_block_rec = 2                             # Number of blocks for dividing the reconstructed tomogram
+N_block_linear_combination = 2              # Number of blocks for dividing the micrographs in linear combination
+
+

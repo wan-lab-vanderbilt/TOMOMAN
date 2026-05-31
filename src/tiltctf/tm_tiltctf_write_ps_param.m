@@ -38,10 +38,16 @@ output_name = [tomolist.stack_dir,'tiltctf/',name,'_tiltctf_ps.mrc'];
 [self_path,~,~] = fileparts(which('tm_tiltctf_ctffind4'));
 lut_name = [self_path,'/tiltctf_lut.csv'];
         
-% Parse target defocus string
-target_def = sprintf('%05.4f,',tomolist.target_defocus);            % In case you collect with a defocus range
-target_def = target_def(1:end-1);
-
+% Check for refining CTF
+if sg_check_param(tctf,'refine_ctf')
+    def_file_name = [tomolist.stack_dir,'tiltctf/starting_defocii.txt'];
+    dlmwrite(def_file_name,mean(tomolist.determined_defocii(:,1:2),2)); % Mean of two defocus values
+    
+else
+    % Parse target defocus string
+    target_def = sprintf('%05.4f,',tomolist.target_defocus);            % In case you collect with a defocus range
+    target_def = target_def(1:end-1);
+end
 
 %% Write parameter file
 
@@ -52,7 +58,11 @@ fid = fopen(paramfilename,'w');
 % Print parameters
 fprintf(fid,'%s\n',['stack_name = ',tomolist.stack_dir,tomolist.stack_name]);   % Always use unfiltered stack for defocus determination 
 fprintf(fid,'%s\n',['output_name = ',output_name]);
-fprintf(fid,'%s\n',['target_def = ',target_def]);
+if sg_check_param(tctf,'refine_ctf')
+    fprintf(fid,'%s\n',['def_file = ',def_file_name]);
+else
+    fprintf(fid,'%s\n',['target_def = ',target_def]);
+end
 fprintf(fid,'%s\n',['pixelsize = ',num2str(tomolist.pixelsize)]);
 fprintf(fid,'%s\n',['xf_name = ',xf_name]);
 fprintf(fid,'%s\n',['tlt_name = ',tlt_name]);

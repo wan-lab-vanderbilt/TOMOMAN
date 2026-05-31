@@ -19,6 +19,12 @@ else
     per_tomo = false;
 end
 
+% Check for subset_list
+if sg_check_param(are,'subset_list')
+    subset_list = dlmread([p.root_dir,are.subset_list]);
+else
+    subset_list = [];
+end
 
 %% Align with AreTomo
 n_stacks = size(tomolist,1);
@@ -29,12 +35,21 @@ for i = 1:n_stacks
     process = true;
     if tomolist(i).skip
         process = false;        
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
     elseif tomolist(i).stack_aligned
         if ~are.force_align
             process = false;
+            disp([p.name,tomolist(i).stack_name,' has already been aligned... Moving on to next stack...']);
         end
     end
     
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
+            process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
+        end
+    end
     
     % Check aretomo_list
     if per_tomo
@@ -120,15 +135,19 @@ for i = 1:n_stacks
             if size(aretomo_list,2) > 1
                 if aretomo_list(alist_idx,2) == 0
                     warning([p.name,'ACHTUNG!!! AlignZ for tomo_num ',num2str(tomolist(i).tomo_num),' is set to zero!!! Using value from parameter file...']);
+                    alignZ = are.AlignZ;
                 else
                     alignZ = aretomo_list(alist_idx,2);                
                 end
+            else
+                alignZ = are.AlignZ;                
             end
             
             % Check for VolZ
             if size(aretomo_list,2) > 2
                 if aretomo_list(alist_idx,3) == 0
                     warning([p.name,'ACHTUNG!!! VolZ for tomo_num ',num2str(tomolist(i).tomo_num),' is set to zero!!! Using value from parameter file...']);
+                    volZ = are.VolZ;
                 else
                     volZ = aretomo_list(alist_idx,3);                
                 end
@@ -269,7 +288,7 @@ for i = 1:n_stacks
         
         % Save tomolist
         if write_list
-            save([p.root_dir,p.tomolist_name],'tomolist');
+            tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
         end
         
               

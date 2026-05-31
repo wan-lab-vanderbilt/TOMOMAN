@@ -2,8 +2,14 @@ function tomolist = tm_ctffind4(tomolist, p, ctffind4, dep, write_list)
 %% tm_ctffind4
 % A function for taking a tomolist and running CTFFIND.
 % 
-% SK, WW 06-2022
+% SK, WW 07-2025
 
+% Check for subset_list
+if sg_check_param(ctffind4,'subset_list')
+    subset_list = dlmread([p.root_dir,ctffind4.subset_list]);
+else
+    subset_list = [];
+end
 
 %% Run CTFFIND4
 
@@ -12,30 +18,24 @@ n_stacks = numel(tomolist);
 
 for i = 1:n_stacks
     
-%     % Check for skip
-%     if (tomolist(i).skip == false)
-%         process = true;
-%     else
-%         process = false;
-%     end
-%     % Check for previous alignment
-%     if (process == true) && (tomolist(i).ctf_determined == false)
-%         process = true;
-%     else
-%         process = false;
-%     end        
-%     % Check for force
-%     if (logical(ctf.force_ctffind) == true) && (tomolist(i).skip == false)
-%         process = true;
-%     end
     
     % Check processing
     process = true;
     if tomolist(i).skip
         process = false;        
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
     elseif tomolist(i).ctf_determined
         if ~ctffind4.force_ctffind
             process = false;
+            disp([p.name,tomolist(i).stack_name,' has already been through CTF estimation... Moving on to next stack...']);
+        end
+    end
+    
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
+            process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
         end
     end
     
@@ -122,7 +122,7 @@ for i = 1:n_stacks
                 
         % Save tomolist
         if write_list
-            save([p.root_dir,tomolist_name],'tomolist');
+            tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
         end
         
         % Write ctfphaseflip file

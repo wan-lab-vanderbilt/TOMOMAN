@@ -50,20 +50,20 @@ if ~mc2.gain_corrected
         gain_str = [gain_str,' -FlipGain ',num2str(tomolist.flip_gain,'%i')];
     end
     
+    % Defect map
+    if ~isempty(tomolist.defects_file)
+        defect_str = [' -DefectMap ',tomolist.defects_file];
+    else
+        defect_str = '';
+    end
+    
 else
     
     gain_str = '';
 
 end
 
-% Defect map
-if strcmp(mc2.input_format,'eer')
-    if ~isempty(tomolist.defects_file)
-        defect_str = [' -DefectMap ',tomolist.defects_file];
-    else
-        error([p.name,'You must provide defect map when motion correcting EER!!!']);
-    end
-end
+
     
 % EER sampling
 if strcmp(mc2.input_format,'eer')
@@ -137,7 +137,10 @@ for i = 1:n_img
                 headersplit = split(header);
                 eer_frames = str2num(headersplit{end-1});
                 dose_fractions = [eer_frames,mc2.EerGrouping,0];
-                warning(['EER frames: ', num2str(eer_frames),', Dose fractions: ',num2str(floor(eer_frames./mc2.EerGrouping)), ', Exluded frames: ', num2str(mod(eer_frames,mc2.EerGrouping))]);
+                excluded_frames = mod(eer_frames,mc2.EerGrouping);
+                if excluded_frames ~= 0
+                    warning(['EER frames: ', num2str(eer_frames),', Dose fractions: ',num2str(floor(eer_frames./mc2.EerGrouping)), ', Exluded frames: ', num2str(excluded_frames)]);
+                end
                 fmintfile = [tomolist.stack_dir,'/MotionCor2/fmintfile.txt'];
                 dlmwrite(fmintfile,dose_fractions,'delimiter','\t');
                 fmintfile_str = [' -FmIntFile ',fmintfile];
@@ -150,12 +153,12 @@ for i = 1:n_img
     
     % combine EER string
     if strcmp(mc2.input_format,'eer')
-        eer_str = [defect_str,eer_sampling_str,fmintfile_str,pixelsize_str];
+        eer_str = [eer_sampling_str,fmintfile_str,pixelsize_str];
     else
         eer_str = '';
     end
     
-    mc2_cmd = [dep.motioncor2,' ',in_str,input_names{i},' -OutMrc ',output_names{i},' -LogFile ',output_names{i},'.log ',gain_str,dosefilter_str,eer_str,other_param,splitsum_str];
+    mc2_cmd = [dep.motioncor2,' ',in_str,input_names{i},' -OutMrc ',output_names{i},' -LogFile ',output_names{i},'.log ',gain_str,defect_str,dosefilter_str,eer_str,other_param,splitsum_str];
     fprintf(fid,'%s\n',mc2_cmd);
     
     

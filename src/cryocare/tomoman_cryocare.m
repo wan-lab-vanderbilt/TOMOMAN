@@ -104,7 +104,7 @@ if par_proc
     % Split tomolist
     switch task
         case {'cryocare_oe_recons','cryocare_predict'}
-            [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par);            
+            [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par,task,cryocare);            
     end
     if isempty(tomolist)
         return

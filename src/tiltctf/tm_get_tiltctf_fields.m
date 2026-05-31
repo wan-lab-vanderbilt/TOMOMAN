@@ -7,6 +7,8 @@ function tcft_fields = tm_get_tiltctf_fields()
 %% Fields
 
 tcft_fields = {'force_tiltctf', 'boo', false;...            % 1 = yes, 0 = no
+               'subset_list', 'str', [];...                 % List of tomograms to process
+               'refine_ctf','boo',false;...                 % Start from previoulsy estimated CTF values
                'ps_size', 'num', 512;...                    % Size of power-spectrum in pixels
                'def_tol','num',0.1;...                      % Tilted defocus tolerance in microns. This determines sampling rate along the x-axis of the tilt-series.
                'fscaling','num',1;...                       % Scaling in Fourier space.

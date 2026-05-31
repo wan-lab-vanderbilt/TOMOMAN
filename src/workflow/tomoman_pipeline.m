@@ -10,7 +10,7 @@ function par = tomoman_pipeline(root_dir,paramfilename,par)
 
 % %%%%% DEBUG
 % root_dir = [pwd,'/'];
-% paramfilename = 'pipeline.param';
+% paramfilename = 'tomoman_pipeline.param';
 
 
 
@@ -44,7 +44,7 @@ for i = 1:n_tasks
     par = tomoman(root_dir,pipeline{i},[],par);
     
      % Recompile results
-    tm_par_finish_run(par);
+    tm_par_finish_run(par,pipeline{i});
 
 end
 

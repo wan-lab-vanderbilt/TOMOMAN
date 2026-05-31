@@ -33,6 +33,9 @@ clean_stack = true;
 if check
     clean_stack = ~tm_check_stack_for_cleaning(in_stack_name, n_good_tilts);    
 end
+if sg_check_param(c,'skip_unfilt')
+    clean_stack = false;
+end
 if clean_stack
     newstack_name = [st_name,c.clean_append,st_ext];                
     system([dep.newstack,' -input ',in_stack_name,...

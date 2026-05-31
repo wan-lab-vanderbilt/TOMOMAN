@@ -1,0 +1,40 @@
+## tomoman_isonet_prepare
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+##### Input Tomogram Parameters #####
+tomo_dir = tomo/                # Directory to tomograms. Can be relative to root_dir or full path.
+tomo_binning = 8                # Binning of input tomograms
+subset_list = none              # List containing tomo_num values for processing.
+
+##### Prepare Star Parameters #####
+isonet_dir = isonet/            # Relative to root_dir
+process_stack = dose-filtered   # Stack for processing. Either 'unfiltered' or 'dose-filtered'.
+output_star = tomograms.star	# star file similar to that from "relion". You can modify this file manually or with gui.
+number_subtomos = 100           # (Default = 100) Number of subtomograms to be extracted in later processes. If you want to extract different number of subtomograms in different tomograms, you can modify them in the star file generated with this command or with gui.
+
+##### Deconvolution Parameters #####
+run_deconv = true                # Run deconvolution; it is suggested you do.
+deconv_dir = deconv             # Folder created to save deconvoluted tomograms.
+snrfalloff = 1                  # (Default = 1) SNR fall rate with the frequency. High values means losing more high frequency. If this value is not set, the program will look for the parameter in the star file. If this value is not set and not found in star file, the default value 1.0 will be used.
+deconvstrength = 1              # (Default = 1) Strength of the deconvolution. If this value is not set, the program will look for the parameter in the star file. If this value is not set and not found in star file, the default value 1.0 will be used.
+highpassnyquist = 0.02          # (Default = 0.02) Highpass filter for at very low frequency. We suggest to keep this default value.
+ncpu = 4                        # Number of cpus to use.
+
+##### Mask Generation Parameters #####
+make_masks = true               # Make masks
+mask_dir = mask/                # path and name of the mask to save as
+density_percentage = 50         # (Default = 50) The approximate percentage of pixels to keep based on their local pixel density. If this value is not set, the program will look for the parameter in the star file. If this value is not set and not found in star file, the default value 50 will be used.
+std_percentage = 50             # (Default = 50) The approximate percentage of pixels to keep based on their local standard deviation. If this value is not set, the program will look for the parameter in the star file. If this value is not set and not found in star file, the default value 50 will be used.
+use_deconv_tomo = true          # If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.
+z_crop = none                   # If exclude the top and bottom regions of tomograms along z axis. For example, "--z_crop 0.2" will mask out the top 20% and bottom 20% region along z axis.
+
+# Parallelization parameters
+n_cores = 10                        # Number of cores for parallel processing. Parallel processing is only for building stacks; tomogram reconstruction and binning is not parallelized.
+
+
+

@@ -1,0 +1,19 @@
+## tomoman_clean_stacks
+
+
+# Tomolist parameters
+root_dir = %root_directory                  # Root folder for dataset; stack directories will be generated here.
+tomolist_name = %tomolist_filename          # Relative to root_dir
+log_name = %tomoman_log_filename            # Relative to root_dir
+
+# General cleaning parameters
+clean_binning = 8           # Binning to open 3dmod with
+clean_append = none         # Append to name for cleaned stack. Setting to "none" overwrites old file.
+check_cleaning = 0          # Check that all stacks have been cleaned using stored bad tilts. This will disable interactive cleaning. 1 = yes, 0 = no.
+subset_list = none          # List containing tomo_num values for cleaning. Set to 'none' to skip.
+force_cleaning = 0          # Force cleaning for already cleaned stacks. 1 = yes, 0 = no
+
+# ARCTiC Parameters
+angle_step = 3              # The increment (step size) for the tilt angles between consecutive tilts.
+model = /path/to/model/     # Path to the pre-trained model file
+gpu_id = 1                  # The ID of GPUs to be used for processing. e.g 0,1,2,3.

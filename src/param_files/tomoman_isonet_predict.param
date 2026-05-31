@@ -1,0 +1,24 @@
+## tomoman_isonet_predict
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+##### Input Parameters #####
+isonet_dir = isonet/                                # Relative to root_dir
+star_filename = tomograms.star                      # Name of star file to process. Should be located in isonet_dir
+result_dir = results/                               # The name of directory that contains refined neural network models and subtomograms. This is within the isonet_dir
+model_name = model_iter30.h5                        # Name of the .h5 model to use. Typically its model_iter[iteration].h5, which is determined by how you trained. This file should be in the results_dir.
+
+##### Prediction Parameters #####
+use_deconv_tomo = true                              # (Default: true) If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.
+cube_size = 64                                      # (Default: 64) Size of cubes for training, should be divisible by 8, eg. 32, 64. The actual sizes of extracted subtomograms are 1.5 times of this value.
+crop_size = 80                                      # (Default: 80) The size of subtomogram, should be larger then the cube_size The default value is 16+cube_size.
+output_dir = output/                                # Directory to output IsoNet processed tomograms
+
+##### Other Parameters #####
+gpuID  = 2,3                                        # The ID of gpu to be used during the training. e.g 0,1,2,3.
+subset_list = none                                  # List containing tomo_num values for processing.
+
+

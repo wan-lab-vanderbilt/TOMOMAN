@@ -9,7 +9,7 @@ function par = tomoman_import(root_dir,paramfilename,par)
 %
 % WW 05-2022
 
-% % % % % % DEBUG
+% % % % % DEBUG
 % root_dir = pwd;
 % paramfilename = 'tomoman_import.param';
 % par = [];
@@ -104,7 +104,7 @@ if proc
     % Sort stacks
     tomolist = tm_import_new_stacks(p,ov,s,tomolist,par);
     % Write tomolist
-    save([p.root_dir,p.tomolist_name],'tomolist');
+    tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
 else
     % Wait for sorting to finish
     disp([p.name,'Waiting for sorting to finish...']);

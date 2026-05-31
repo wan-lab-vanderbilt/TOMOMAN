@@ -11,9 +11,6 @@ function tomolist = tm_tiltctf_ctffind4(tomolist,p,tctf,ctffind4,dep,write_list)
 % [self_path,~,~] = fileparts(which('tm_tiltctf_ctffind4'));
 % lut_name = [self_path,'tiltctf_lut.csv'];
 
-% % Read motl (__UNDER_CONSTRUCTION__)
-% motl = sg_motl_read(tctf.motl_name);
-
 % % Check debug
 % if tctf.visualdebug
 %     ifvisualdebug = 1;
@@ -21,54 +18,50 @@ function tomolist = tm_tiltctf_ctffind4(tomolist,p,tctf,ctffind4,dep,write_list)
 %     ifvisualdebug = 0;
 % end
 
+% Check for subset_list
+if sg_check_param(tctf,'subset_list')
+    subset_list = dlmread([p.root_dir,tctf.subset_list]);
+else
+    subset_list = [];
+end
 
 %% Determine CTF Parameters
 n_stacks = size(tomolist,1);
 
-for i = 1:n_stacks
-    
-%     % Check for skip
-%     if (tomolist(i).skip == false)
-%         process = true;
-%     else
-%         process = false;
-%     end
-%     % Check for previous alignment
-%     if (process == true) && (tomolist(i).ctf_determined == false)
-%         process = true;
-%     else
-%         process = false;
-%     end        
-%     % Check for force
-%     if (logical(tctf.force_run) == true) && (tomolist(i).skip == false)
-%         process = true;
-%     end
-    
+for i = 1:n_stacks    
+        
+        
     % Check processing
     process = true;
     if tomolist(i).skip
         process = false;        
+        disp([p.name,tomolist(i).stack_name,' set to skip... Moving on to next stack...']);
     elseif tomolist(i).ctf_determined
         if ~tctf.force_tiltctf
             process = false;
+            disp([p.name,tomolist(i).stack_name,' has already been CTF estimated... Moving on to next stack...']);
         end
     end
+    
+    % Check if aligned
+    if ~tm_check_if_aligned(tomolist(i))
+        process = false;
+        disp([p.name,tomolist(i).stack_name,' has not been aligned... Moving on to next stack...']);
+    end
+    
+    % Check subset_list
+    if ~isempty(subset_list)
+        if ~any(subset_list == tomolist(i).tomo_num)
+            process = false;
+            disp([p.name,tomolist(i).stack_name,' is not in the subset_list... Moving on to next stack...']);
+        end
+    end
+    
     
     if process                
         
         
-        %%%%% Parse inputs %%%%%
-        
-        % Parse name of stack used for alignment
-        switch tomolist(i).alignment_stack
-            case 'unfiltered'
-                process_stack = tomolist(i).stack_name;
-            case 'dose-filtered'
-                process_stack = tomolist(i).dose_filtered_stack_name;
-            otherwise
-                error([p.name,'ACTHUNG!!! Unsuppored stack!!! Only "unfiltered" and "dose-filtered" supported!!!']);
-        end        
-        [~,name,~] = fileparts(process_stack);
+        %%%%% Parse inputs %%%%%        
        
 
         % Check tiltctf folder
@@ -78,22 +71,7 @@ for i = 1:n_stacks
             end
             mkdir([tomolist(i).stack_dir,'/tiltctf/']);
         end
-        
-        
-%         %particle based sample geometry (__UNDER_CONSTRUCTION__)
-%         
-%         % Parse particle coordinates for current tomogram
-%         tomo_idx = [motl.tomo_num] == tomolist(i).tomo_num;
-%         n_motls = sum(tomo_idx);
-% 
-%         % Parse tomogram motl
-%         tomo_motl = allmotl(tomo_idx);
-%         pos = zeros(3,n_motls);
-%         n_particle = size(pos,2);
-%         pos(1,:) = [tomo_motl.orig_x] + [tomo_motl.x_shift];
-%         pos(2,:) = [tomo_motl.orig_y] + [tomo_motl.y_shift];
-%         pos(3,:) = [tomo_motl.orig_z] + [tomo_motl.z_shift];
-
+              
         
         % Parse xtilt        
         switch tomolist(i).alignment_software
@@ -130,11 +108,6 @@ for i = 1:n_stacks
         
         % Calculate power spectrum
         if tctf.calc_ps
-%             tomoman_tiltctf_calculate_powerspectrum(tomolist(i).stack_dir,...
-%                 tomolist(i).stack_name,output_name,...
-%                 tomolist(i).target_defocus,tomolist(i).pixelsize,...
-%                 xf_name,tlt_name,lut,tctf.ps_size,tctf.def_tol,...
-%                 tctf.fscaling,tctf.write_unstretched,tctf.write_negative,ifvisualdebug,tctf.xtiltoption);
                         
             % Write tiltctf-ps param file
             [tiltctf_paramfilename, ps_name] = tm_tiltctf_write_ps_param(tomolist(i),tctf,xtilt);
@@ -261,7 +234,7 @@ for i = 1:n_stacks
         
         % Save tomolist
         if write_list
-            save([p.root_dir,tomolist_name],'tomolist');
+            tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
         end
         
         

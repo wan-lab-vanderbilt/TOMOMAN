@@ -25,11 +25,12 @@ switch stack_type(1:2)
 end
 
 % Parse suffix
-if df
-    subtype = stack_type(4:end);
-else
-    subtype = stack_type;
-end
+% if df
+%     subtype = stack_type(4:end);
+% else
+%     subtype = stack_type;
+% end
+subtype = stack_type(4:end);
 switch subtype
 %     case 'w'
 %         subtype = '_whitened';
@@ -91,10 +92,14 @@ switch t.alignment_software
         subfolder = 'AreTomo/';
     case 'imod'
         subfolder = 'imod/';
-    otherwise  % Assume IMOD
-        subfolder = 'imod/';
+    otherwise 
+        if startsWith(t.alignment_software,'sg_refine_')
+            subfolder = [t.alignment_software,'/'];
+        else
+            error(['ACHTUNG !!! ',t.alignment_software,' is an unsupported alignment_software type!!!']);
+        end
 end
-[~,name,~] = fileparts(t.dose_filtered_stack_name);         % Assume alignment using dose filtered stack
+% [~,name,~] = fileparts(t.dose_filtered_stack_name);         % Assume alignment using dose filtered stack
 tiltcom_name = [t.stack_dir,subfolder,'tilt.com'];
 tlt_name = [t.stack_dir,subfolder,name,'.tlt'];
 xf_name = [t.stack_dir,subfolder,name,'.xf'];
@@ -103,11 +108,16 @@ xf_name = [t.stack_dir,subfolder,name,'.xf'];
 % Read tilt.com
 tiltcom = sg_read_IMOD_tiltcom(tiltcom_name);
 
-% Read .tlt
-tilts = dlmread(tlt_name);
+% Check X tilt
+if isempty(tiltcom.XAXISTILT)
+    tiltcom.XAXISTILT = 0;
+end
 
-% Parse Rotation/ TiltAxisAngle from Xform file
-xf = sg_read_IMOD_xf(xf_name);
+% % Read .tlt
+% tilts = dlmread(tlt_name);
+% 
+% % Parse Rotation/ TiltAxisAngle from Xform file
+% xf = sg_read_IMOD_xf(xf_name);
 
 
 
@@ -132,7 +142,8 @@ fprintf(script,['echo "TOMOMAN: Generating aligned stack for ',stack_name,'..."\
 fprintf(script,['newstack -in ',t.stack_dir,stack_name,' ',...
                 '-ou ',temp_dir,name,'.ali ',...
                 '-xform ',xf_name,' ',...
-                '-si ',num2str(tiltcom.FULLIMAGE(1)),',',num2str(tiltcom.FULLIMAGE(2)),'\n\n']);
+                '-si ',num2str(tiltcom.FULLIMAGE(1)),',',num2str(tiltcom.FULLIMAGE(2)),' ',...
+                '-or -ta 1,0 -mode 12\n\n']);
             
  
 % Erase gold
@@ -148,27 +159,13 @@ if sg_check_param(p,'erase_radius')
     end
 end
 
-
-% Taper edges
-if sg_check_param(p,'taper_pixels')
-    fprintf(script,['echo "TOMOMAN: Tapering edges of ',stack_name,'..."\n']);
-    fprintf(script,['mrctaper -t ',num2str(p.taper_pixels),' ',...
-                    temp_dir,name,'.ali ','\n\n']);
-end
  
  
 % CTF correction
 if sg_check_param(p,'ctfphaseflip')
     
     % Parse defocus file name
-    switch t.ctf_determination_algorithm
-        case 'ctffind4'
-            ctfphaseflipname = [t.stack_dir,'ctffind4/ctfphaseflip_ctffind4.txt'];
-        case 'tiltctf'
-            ctfphaseflipname = [t.stack_dir,'tiltctf/ctfphaseflip_tiltctf.txt'];
-        otherwise
-            disp([p.name,'ACHTUNG!!! Unsupported ctf_determination_algorithm']);
-    end
+    ctfphaseflipname = tm_get_ctfphaseflip_filename(p,t);
     
     % Check default parameters
     if ~sg_check_param(p,'deftolerance')
@@ -200,7 +197,7 @@ if sg_check_param(p,'ctfphaseflip')
                     '-pixelSize ',num2str(t.pixelsize),' ',...
                     '-volt ',num2str(t.voltage),' ',...
                     '-cs ',num2str(p.cs),' ',...
-                    '-ampContrast ',num2str(p.famp),'\n']);
+                    '-ampContrast ',num2str(p.famp),'\n\n']);
 %     if copy_headers == 1
 %         fprintf(script_output,['copyheader ',st_dir,'/',st_name,'_ctfcorr.ali ',st_dir,'/headers/',st_name,'_ctfcorr.ali.header','\n']);
 %     end
@@ -219,7 +216,7 @@ if binning > 1
     fprintf(script,['echo "TOMOMAN: Fourier cropping ',stack_name,' at binning factor ',num2str(binning),'..."\n']);
     fprintf(script,['newstack -InputFile ',recons_st,' ',...
                             ' -OutputFile ',recons_st,' ',...
-                            ' -FourierReduceByFactor ', num2str(binning),'\n\n']);
+                            ' -FourierReduceByFactor ', num2str(binning),' -mode 12\n\n']);
 end
 
 %%%%% Reconstruct Tomogram %%%%%
@@ -229,6 +226,7 @@ if sg_check_param(p,'radial')
     % Parse from input
     radial_string = ['-RADIAL ',num2str(p.radial(1)),',', num2str(p.radial(2)),' '];
 else
+    
     % Check existing tilt.com
     if sg_check_param(tiltcom,'RADIAL')
         % Parse from tilt.com
@@ -259,7 +257,7 @@ end
 fprintf(script,['echo "Reconstruct tomogram with tilt','..."\n']);
 fprintf(script,['tilt ',...
                '-InputProjections ',recons_st,' ',...
-               '-OutputFile ',temp_dir,num2str(t.tomo_num),subtype,'.rec ',...
+               '-OutputFile ',temp_dir,name,subtype,'.rec ',...
                '-IMAGEBINNED ',num2str(binning),' ',...
                '-TILTFILE ',tlt_name,' ',...
                '-THICKNESS ',num2str(tiltcom.THICKNESS),' ',...
@@ -267,7 +265,7 @@ fprintf(script,['tilt ',...
                '-XAXISTILT ',num2str(tiltcom.XAXISTILT),' ',...
                '-PERPENDICULAR  ',...
                radial_string,...,...
-               '-MODE 2 ',...
+               '-MODE 12 ',...
                '-FULLIMAGE ',num2str(tiltcom.FULLIMAGE(1)),',', num2str(tiltcom.FULLIMAGE(2)),' ',...
                '-SUBSETSTART ',num2str(tiltcom.SUBSETSTART(1)),',', num2str(tiltcom.SUBSETSTART(2)),' ',...
                '-AdjustOrigin  ',...
@@ -281,9 +279,11 @@ fprintf(script,['tilt ',...
 
 % Rotate Tomogram
 fprintf(script,'echo "Rotating tomogram about X..."\n');
-fprintf(script,['clip rotx ',temp_dir,num2str(t.tomo_num),subtype,'.rec ',...
-                output_dir,num2str(t.tomo_num),subtype,'.rec ','\n\n']);
-
+% fprintf(script,['clip rotx -mode 12 ',temp_dir,name,subtype,'.rec ',...
+%                 output_dir,name,subtype,'.rec ','\n\n']); % Half
+%                 precision... Causes issues with IsoNet2 prediction
+fprintf(script,['clip rotx ',temp_dir,name,subtype,'.rec ',...
+                output_dir,name,subtype,'.rec ','\n\n']);
 
 % Cleanup temporary files
 fprintf(script,['echo "Tomogram reconstruction complete!!! Cleaning up temporary files...','"\n']);

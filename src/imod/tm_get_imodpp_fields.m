@@ -8,6 +8,7 @@ function imodpp_fields = tm_get_imodpp_fields()
 
 imodpp_fields = {'force_imod','boo',false;...                       % 1 = yes, 0 = no
                  'process_stack','str','dose-filtered';...          % Stack for processing. Either 'unfiltered' or 'dose-filtered'
+                 'subset_list','str',[];...                     	% List containing tomo_num values for processing.
                  'copytomocoms','boo',false;...                     % Run copytomocoms
                  'goldsize','num','';...                            % Gold diameter (nm). Set to 0 for no gold
                  'rotation','num','';...                            % Tilt axis rotation (deg), leave empty to use from the tomolist. 

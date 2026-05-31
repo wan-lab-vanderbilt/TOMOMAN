@@ -12,7 +12,7 @@ function par = tomoman_imod_preprocess(root_dir,paramfilename,par)
 
 %%%% DEBUG
 % paramfilename = 'tomoman_imod_preprocess.param';
-
+% root_dir = pwd;
 
 %% Check check
 
@@ -84,7 +84,7 @@ if par_proc
     disp([p.name,'Parallel processing enabled...']);
     
     % Split tomolist
-    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par);
+    [tomolist,p.tomolist_name,par] = tm_split_tomolist(tomolist,p.root_dir,p.tomolist_name,par,'imod_preprocess',imodpp);
     if isempty(tomolist)
         return
     end
@@ -109,7 +109,7 @@ while all(t <= n_tilts)
     
     
     % Save tomolist
-    save([p.root_dir,p.tomolist_name],'tomolist');
+    tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
     
     t = t+b_size;
     

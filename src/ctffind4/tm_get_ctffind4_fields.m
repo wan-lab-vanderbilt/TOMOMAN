@@ -7,6 +7,7 @@ function ctffind4_fields = tm_get_ctffind4_fields()
 %% Fields
 
 ctffind4_fields = {'force_ctffind', 'boo', false;...            % 1 = yes, 0 = no
+                   'subset_list', 'str', [];...                 % List containing tomo_num values for cleaning. Set to 'none' to skip.
                    'def_range', 'num', 0.6;...                  % Range of defocus to search in microns. TOMOMAN will use this and the "target_defocus" values in the tomolist to calculate the CTFFIND4 min_res and max_res parameters.
                    'ps_size', 'num', 512;...                    % Size of power-spectrum in pixels
                    'cs', 'num', 2.7;...                         % Spherical aberration

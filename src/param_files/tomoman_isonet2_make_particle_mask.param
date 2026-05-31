@@ -1,0 +1,23 @@
+## tomoman_isonet2_make_particle_mask
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+##### IsoNet2 Directory Parameters #####
+isonet2_dir = isonet2/                  # Relative to root_dir
+mask_subdir = masks/                    # Relative to isonet2_dir. 
+
+#### Star Filename ####
+star_filename = isonet2.star            # Filename of output star file. This goes into the isonet2_dir.
+subset_list = none                      # List containing tomo_num values for processing.
+
+##### Mask making parameters #####
+process_stack = dose-filtered       # Stack used for processing. Either 'unfiltered' or 'dose-filtered'
+sg_motl_name = motl.star            # STOPGAP-formatted motivelist 
+point_list = none                   # Plain text file containing 3D positions; substitute for STOGAP motivelist. Columns are tomo_num, x, y, z. 
+boxsize = 64                        # Edge size for particle box. Cubic boxes are placed at each particle position to generate the mask.
+list_binning = 8                    # Binning of the input motivelist or point list. If different from the mask binning, the list will be rescaled accordingly.
+mask_binning = 8                    # Binning of the output mask.

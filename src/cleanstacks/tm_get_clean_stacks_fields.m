@@ -9,6 +9,7 @@ function c_fields = tm_get_clean_stacks_fields()
 c_fields = {'clean_binning','num';...        % Binning to open 3dmod with
             'clean_append','str';...         % Append to name for cleaned stack. Setting to "none" overwrites old file.
             'check_cleaning','boo';...       % Make sure stacks have been cleaned using stored bad tilts. 1 = yes, 0 = no.
+            'subset_list','str';...          % List containing tomo_num values for processing. Set to 'none' to skip.
             'force_cleaning','boo'};         % Force cleaning for cleaned stacks. 1 = yes, 0 = no
             
         

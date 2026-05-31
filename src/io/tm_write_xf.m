@@ -11,7 +11,7 @@ fid = fopen(xf_name,'w');
 
 % Write output
 for i = 1:size(xf,1)
-    fprintf(fid,'%8.7f   %8.7f   %8.7f   %8.7f   %7.3f   %7.3f\n',xf(i,:));
+    fprintf(fid,'  %10.7f  %10.7f  %10.7f  %10.7f    %8.3f    %8.3f\n',xf(i,:));
 end
 
 % Close file

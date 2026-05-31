@@ -91,6 +91,11 @@ if par_proc
     if par.task_id ~= 1
        proc = false;           
     end
+    
+    if proc
+        % Short delay for parallel pipelines to let parallel processes catch up
+        pause(10);
+    end
 end
 
 if proc
@@ -100,10 +105,15 @@ if proc
         tomolist(t) = tm_clean_stacks(tomolist(t),p,c,dep,par);     
 
         % Save tomolist
-        save([p.root_dir,p.tomolist_name],'tomolist');     
+        tm_save_tomolist(p.root_dir,p.tomolist_name,tomolist);
 
         t = t+b_size;
 
+    end
+    
+    % Write parallel completion file    
+    if par_proc
+        system(['touch ',par.comm_dir,'tomoman_clean_stacks']);
     end
 else
     % Wait for sorting to finish

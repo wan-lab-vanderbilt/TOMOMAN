@@ -1,0 +1,37 @@
+## tomoman_tempmatch_pytom
+
+# Directory Parameters
+root_dir = %root_directory                         # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+# TOMOMAN parameters
+
+##### Pytom template matching Parameters #####
+# Parallelization parameters
+n_cores = 18                                       # Number of cores for parallel processing. Parallel processing is only for building stacks; tomogram reconstruction and binning is not parallelized.
+gpu_id = 0                                         # GPU ID's for IMOD Reconstruction. Set to 'none' for no GPUs.
+               
+# Pytom Template matching parameters
+tomo_dir = path/to/tomo_dir                         # Tomogram directory
+tomo_bin = 8                                        # Tomogram binning. 
+template_name = template_name                       # the template name. template is then parsed at template_nam.mrc and the corresponding mask as template_name_mask.mrc.
+template_dir = path/to/template_dir                 # path to the template dir.
+if_spherical_template_mask = 1                      # Is the template mask sperical? 1 = yes(default). 0 = no.
+per_tilt_weighting = 1                              # Whether to apply per tilt weigthing. 1 = yes (default). 0 = no.
+angular_search = 7.00                               # Angular step in degrees. options are [7.00, 35.76, 19.95, 90.00, 18.00, 12.85, 38.53, 11.00, 17.86, 25.25, 50.00, 3.00].
+low_pass = 30                                       # Low pass filter cutoff in Anstroms.
+high_pass = 500                                     # High pass filter cutoff in Anstroms. 
+calc_score = 1                                      # Whether to run template matching from scratch or reextract particles. 1 = from scratch. 0 = Reexctract.  
+
+# Peak extraction parameters
+tomogram_mask_dir = none                            # Directory to look for tomogram masks in.  
+n_particles = 1000                                  # number of particles to extract per tomogram. 
+n_false_positives = 1                               # False positive rate. 1 is good for ribosomes. higher at the cost of specificity.  
+particle_radius = 10                                # Particle radius in pixels (at binning tomo_bin)to avoid redundancy. 
+override_cc_thresh  = none                          # Override CC threshol, this overrides automated thresholding.         
+# Output directory for star file
+output_dir = output_dir                             # Prefix of output directory, relative to root_dir. 
+               
+# Other parameters
+tempmatch_list = none                               # List of tomograms to be template matched; list is a plain-text file with a column of target tomo_num. 

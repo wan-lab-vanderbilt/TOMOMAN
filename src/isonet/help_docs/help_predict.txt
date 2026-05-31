@@ -1,0 +1,57 @@
+NAME
+    isonet.py predict - Predict tomograms using trained model
+
+SYNOPSIS
+    isonet.py predict STAR_FILE MODEL <flags>
+
+DESCRIPTION
+    isonet.py predict star_file model [--gpuID] [--output_dir] [--cube_size] [--crop_size] [--batch_size] [--tomo_idx]
+
+POSITIONAL ARGUMENTS
+    STAR_FILE
+        Type: str
+        star for tomograms.
+    MODEL
+        Type: str
+        path to trained network model .h5
+
+FLAGS
+    --output_dir=OUTPUT_DIR
+        Type: str
+        Default: './corrected_tomos'
+        file_name of output predicted tomograms
+    --gpuID=GPUID
+        Type: Optional[str]
+        Default: None
+        (0,1,2,3) The gpuID to used during the training. e.g 0,1,2,3.
+    --cube_size=CUBE_SIZE
+        Type: int
+        Default: 64
+        (64) The tomogram is divided into cubes to predict due to the memory limitation of GPUs.
+    --crop_size=CROP_SIZE
+        Type: int
+        Default: 96
+        (96) The side-length of cubes cropping from tomogram in an overlapping patch strategy, make this value larger if you see the patchy artifacts
+    --use_deconv_tomo=USE_DECONV_TOMO
+        Default: True
+        (True) If CTF deconvolved tomogram is found in tomogram.star, use that tomogram instead.
+    --batch_size=BATCH_SIZE
+        Type: Optional[int]
+        Default: None
+        The batch size of the cubes grouped into for network predicting, the default parameter is four times number of gpu
+    --normalize_percentile=NORMALIZE_PERCENTILE
+        Type: bool
+        Default: True
+        (True) if normalize the tomograms by percentile. Should be the same with that in refine parameter.
+    --log_level=LOG_LEVEL
+        Type: str
+        Default: 'info'
+        ("debug") level of message to be displayed, could be 'info' or 'debug'
+    --tomo_idx=TOMO_IDX
+        Type: Optional[]
+        Default: None
+        (None) If this value is set, process only the tomograms listed in this index. e.g. 1,2,4 or 5-10,15,16
+
+NOTES
+    You can also use flags syntax for POSITIONAL ARGUMENTS
+

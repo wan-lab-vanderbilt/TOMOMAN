@@ -1,0 +1,53 @@
+## tomoman_isonet2_denoise
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+##### IsoNet2 Directory Parameters #####
+isonet2_dir = isonet2/                              # Relative to root_dir
+denoise_training_subdir = denoise_training/         # Relative to isonet2_dir. Output directory for denoising models
+denoise_predict_subdir = denoise_tomos/             # Relative to isonet2_dir. Output directory for denoised tomograms
+
+#### Star Filename ####
+star_filename = isonet2.star            # Filename of output star file. This goes into the isonet2_dir.
+
+#### Computation parameters ####
+ncpus = 16                              # Number of CPUs to use for data processing
+gpuID = 3                               # ID of GPU to use for processing
+
+#### Denoise Training ####
+run_denoise_training = 1                # Run denoise training. If set to 0, training is skipped and the latest model in the denoise_training_subdir is used.
+training_subset_list = none             # List containing tomo_num values for training.
+continue_training = 0                   # Continue training on a pretrained model.
+
+#### Denoise Prediction ####
+run_denoise_prediction = 1              # Run denoise prediction. If set to 0, training is skipped and only training is run
+predict_subset_list = none              # Subset to use for predictoin
+
+
+
+#### Denoise Training Parameters ####
+arch = unet-medium                      # Network architecture string (e.g., unet-small, unet-medium, unet-large). Determines model capacity and VRAM requirements. Default: "unet-medium".
+batch_size = auto                       # Number of subtomograms per optimization step; if "auto", this is automatically determined by multiplying the number of available GPUs by 2. If the number of GPUs is 1, batch size is 4. Batch size per GPU matters for gradient stability. Default: "auto".
+bfactor = 0                             # B-factor applied during training/prediction to boost high-frequency content. For cellular tomograms we recommend a b-factor of 0. For isolated samples, you can use a b-factor from 200–300. Default: 0.
+clip_first_peak_mode = 1                # Controls attenuation of overrepresented very-low-frequency CTF peak. Options 2 and 3 might increase low-resolution contrast. Default: 1.
+CTF_mode = network                      # CTF handling mode: "None", "phase_only", "wiener", or "network". Default: "None".
+cube_size = 96                          # Size in voxels of training subvolumes. Must be compatible with the network (divisible by the network downsampling factors). This allows any multiple of 16 >= 64. Default: 96.
+deconvstrength = 1                      # Scalar multiplier for deconvolution strength; increasing this emphasizes correction and low-frequency recovery. Default: 1.0.
+do_phaseflip_input = 1                  # Whether to apply phase flip during training. Default: True.
+epochs = 50                             # Number of training epochs. Default: 50.
+highpassnyquist = 0.02                  # Fraction of the Nyquist used as a very-low-frequency high-pass cutoff; use to remove large-scale intensity gradients and drift. Default: 0.02.
+isCTFflipped = 0                        # Whether input tomograms are phase flipped. Default: False.
+learning_rate = 3e-4                    # Initial learning rate. Default: 3e-4.
+learning_rate_min = 3e-4                # Minimum learning rate for scheduler. Default: 3e-4.
+loss_func = L2                          # Loss function to use (L2, Huber, L1). Default: "L2".
+mixed_precision = 1                     # If True, uses float16/mixed precision to reduce VRAM and speed up training. Default: True.
+save_interval = 10                      # Interval to save model checkpoints. Default: 10.
+snrfalloff = 0                          # Controls frequency-dependent SNR attenuation applied during deconvolution; larger values reduce high-frequency contribution more aggressively. Default: 0.
+with_preview = 0                        # If True, run prediction every save interval. Default: True.
+
+
+

@@ -87,6 +87,11 @@ end
 ctffind4.min_def = (abs(t.target_defocus)-ctffind4.def_range)*10000;
 ctffind4.max_def = (abs(t.target_defocus)+ctffind4.def_range)*10000;
 
+% Check min_def to prevent overfocus fitting
+if ctffind4.min_def < 0
+    ctffind4.min_def = 0;
+end
+
 
     
 

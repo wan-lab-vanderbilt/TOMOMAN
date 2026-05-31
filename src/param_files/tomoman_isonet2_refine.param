@@ -1,0 +1,60 @@
+## tomoman_isonet2_refine
+
+# Directory Parameters
+root_dir = %root_directory                          # Root folder for dataset stack directories will be generated here.
+tomolist_name = %tomolist_filename                  # Relative to root_dir
+log_name = %tomoman_log_filename                    # Relative to root_dir
+
+
+##### IsoNet2 Directory Parameters #####
+isonet2_dir = isonet2/                              # Relative to root_dir
+refine_training_subdir = refine_training/           # Relative to isonet2_dir. Output directory for denoising models
+refine_predict_subdir = refine_tomos/               # Relative to isonet2_dir. Output directory for denoised tomograms
+
+#### Star Filename ####
+star_filename = isonet2.star            # Filename of output star file. This goes into the isonet2_dir.
+
+#### Computation parameters ####
+ncpus = 16                              # Number of CPUs to use for data processing
+gpuID = 3                               # ID of GPU to use for processing
+
+#### Refine Training ####
+run_refine_training = 1                 # Run denoise training. If set to 0, training is skipped and the latest model in the denoise_training_subdir is used.
+training_subset_list = none             # List containing tomo_num values for training.
+continue_training = 0                   # Continue training on a pretrained model.
+
+#### Refine Prediction ####
+run_refine_prediction = 1               # Run denoise prediction. If set to 0, training is skipped and only training is run
+predict_subset_list = none              # Subset to use for predictoin
+
+
+
+#### Refine Training Parameters ####
+apply_mw_x1 = true                      # Whether to apply missing wedge to subtomograms at the beginning. Default: True.
+arch = unet-medium                      # Network architecture string (e.g., unet-small, unet-medium, unet-large, scunet-fast). Determines model capacity and VRAM requirements. Default: "unet-medium".
+batch_size = none                       # Number of subtomograms per optimization step; if None, this is automatically determined by multiplying the number of available GPUs by 2. If the number of GPUs is 1, batch size is 4. Batch size per GPU matters for gradient stability. Default: None.
+bfactor = 0                             # B-factor applied during training/prediction to boost high-frequency content. For cellular tomograms we recommend a b-factor of 0. For isolated samples, you can use a b-factor from 200–300. Default: 0.
+clip_first_peak_mode = 1                # Controls attenuation of overrepresented very-low-frequency CTF peak. Options 2 and 3 might increase low-resolution contrast. Default: 1. 0 none; 1 constant clip; 2 negative sine; 3 cosine
+CTF_mode = network                      # CTF handling mode: "None", "phase_only", "wiener", or "network". Default: "None".
+cube_size = 96                          # Size in voxels of training subvolumes. Must be compatible with the network (divisible by the network downsampling factors). This allows any multiple of 16 >= 64. Default: 96.
+deconvstrength = 1                      # Scalar multiplier for deconvolution strength; increasing this emphasizes correction and low-frequency recovery but can introduce ringing/artifacts if set too high. Default: 1.0.
+do_phaseflip_input = true               # Whether to apply phase flip during training. Default: True.
+epochs = 50                             # Number of training epochs. Default: 50.
+highpassnyquist = 0.02                  # Fraction of the Nyquist used as a very-low-frequency high-pass cutoff; use to remove large-scale intensity gradients and drift; usually left at default. Default: 0.02.
+isCTFflipped = false                    # Whether input tomograms are phase flipped. Default: False.
+learning_rate = 3e-4                    # Initial learning rate. Default: 3e-4.
+learning_rate_min = 3e-4                # Minimum learning rate for scheduler. Default: 3e-4.
+loss_func = L2                          # Loss function to use (L2, Huber, L1). Default: "L2".
+method = isonet2-n2n                    # "isonet2" for single-map missing-wedge correction, "isonet2-n2n" for noise2noise when even/odd halves are present. If omitted, the code auto-detects the method from the STAR columns. Default: "None" (auto-detect).
+mixed_precision = true                  # If True, uses float16/mixed precision to reduce VRAM and speed up training. Default: True.
+mw_weight = -1                          # Weight for missing wedge loss. Higher values correspond to stronger emphasis on missing wedge regions. Disabled by default. Default: -1 (disabled).
+noise_level = 0                         # Adds artificial noise during training. Default: 0.
+noise_mode = nofilter                   # Controls filter applied when generating synthetic noise (None, ramp, hamming). Default: "nofilter".
+prev_tomo_idx = 1                       # If set, automatically predict only the tomograms listed by these indices (e.g., "1,2,4" or "5-10,15,16"). Default: 1.
+random_rot_weight = 0.2                 # Percentage of rotations applied as random augmentation. Default: 0.2.
+save_interval = 10                      # Interval to save model checkpoints. Default: 10.
+snrfalloff = 0                          # Controls frequency-dependent SNR attenuation applied during deconvolution; larger values reduce high-frequency contribution more aggressively and can stabilize deconvolution on noisy data; smaller values preserve more high-frequency content but risk amplifying noise. Default: 0.
+with_preview = false                    # If True, run prediction every save interval. Default: True.
+
+
+

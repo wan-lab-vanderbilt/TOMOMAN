@@ -8,6 +8,7 @@ function mc2_fields = tm_get_motioncor2_fields()
 
 mc2_fields = {'force_realign', 'boo', false;...         % Force realignment
               'image_size', 'num', [];...               % Crops or expands to image_size. Useful to produce image dimensions with integer binning factors (e.g. K2)
+              'subset_list','str',[];...                % List containing tomo_num values for processing.
               'input_format', 'str', '';...             %  "tiff" or "mrc" or "eer"
               'dose_filter', 'boo', false;...           % Dose filter using MotionCor2 (not recommended...)
               'dose_filter_suffix', 'str', '';...       % Suffix to add to dose-filtered stack. 
