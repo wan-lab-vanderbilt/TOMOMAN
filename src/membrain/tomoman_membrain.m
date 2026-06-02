@@ -5,7 +5,7 @@ function par = tomoman_membrain(root_dir,paramfilename,par)
 % WW 06-2025
 
 %%%% DEBUG
-% root_dir = '/dors/wan_lab/home/wanw/research/mintu/Krios_Apr25';
+% root_dir = pwd;
 % paramfilename = 'tomoman_membrain_segment.param';
 % par_proc = false;
 % par = [];
@@ -101,7 +101,7 @@ end
 
     
 % Run IMOD reconstruction
-tm_membrain_segment(tomolist, p, membrain, dep);   
+tm_membrain_segment(tomolist, p, membrain, dep, par);
     
 
 % Write last task

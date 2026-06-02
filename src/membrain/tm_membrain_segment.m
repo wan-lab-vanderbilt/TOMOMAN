@@ -93,9 +93,10 @@ fprintf(script,['echo "##### Run Membrain Segmentation #####"','\n\n']);
 
 % Print line for each tomogram
 for i = 1:n_stacks
+    idx = proc_idx(i);
     
     % Attempt to parse tomo_name
-    [~,name,~] = fileparts(tomolist(i).stack_name);
+    [~,name,~] = fileparts(tomolist(idx).stack_name);
     d = dir([tomo_dir,name,append,'*']);
     if numel(d) > 1
         error([p.name,'ACHTUNG!!! tomo_dir contains more than one file that starts with "',name,'"...']);
@@ -103,7 +104,7 @@ for i = 1:n_stacks
     tomo_name = d.name;
     
     % Calculate pixelsize
-    pixelsize = tomolist(i).pixelsize*membrain.tomo_binning;
+    pixelsize = tomolist(idx).pixelsize*membrain.tomo_binning;
     
     % Print lines
     fprintf(script,[dep.membrain,' segment']);

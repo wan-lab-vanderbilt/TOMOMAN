@@ -129,6 +129,9 @@ switch lower(task)
     case {'isonet2_prepare','isonet2_denoise','isonet2_make_mask','isonet2_make_particle_mask','isonet2_refine'}
         par = tomoman_isonet2(root_dir,paramfilename,par);
         
+    case {'membrain_segment'}
+        par = tomoman_membrain(root_dir,paramfilename,par);
+        
     otherwise
         error(['TOMOMAN: ACHTUNG!!! ',task,' is an unsupported task!!!']);
         
